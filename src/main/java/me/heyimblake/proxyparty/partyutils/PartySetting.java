@@ -5,31 +5,13 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Copyright (C) 2017 heyimblake
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @author heyimblake
- * @since 10/22/2016
- */
 public enum PartySetting {
     PARTY_CHAT_TOGGLE_ON("Chat", "Activar/Desactivar el chat automático de la Party", new HashSet<>()),
-    PARTY_INVITE_RECIEVE_TOGGLE_OFF("Invitaciones", "Bloquear invitaciones de Party's", new HashSet<>());
+    PARTY_INVITE_RECEIVE_TOGGLE_OFF("Invitaciones", "Bloquear invitaciones de Party's", new HashSet<>());
 
-    private Set<ProxiedPlayer> players;
-    private String argumentString, niceName;
+    private final Set<ProxiedPlayer> players;
+    private final String argumentString;
+    private final String niceName;
 
     PartySetting(String argumentString, String niceName, Set<ProxiedPlayer> players) {
         this.argumentString = argumentString;
