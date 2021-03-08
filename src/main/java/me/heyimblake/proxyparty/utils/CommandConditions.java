@@ -26,8 +26,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
  */
 public class CommandConditions {
 
-    private static PartyManager partyManager = PartyManager.getInstance();
-
     public static Boolean checkTargetOnline(ProxiedPlayer proxiedPlayer, ProxiedPlayer sender) {
         if (proxiedPlayer == null) {
             sender.sendMessage(Constants.TAG, new ComponentBuilder("El jugador no se pudo encontrar.").color(ChatColor.RED).create()[0]);
@@ -39,7 +37,7 @@ public class CommandConditions {
     }
 
     public static Boolean blockIfHasParty(ProxiedPlayer sender) {
-        if (partyManager.hasParty(sender)) {
+        if (PartyManager.getInstance().hasParty(sender)) {
             sender.sendMessage(Constants.TAG, new ComponentBuilder("Estas ya en una party!").color(ChatColor.RED).create()[0]);
 
             return true;
