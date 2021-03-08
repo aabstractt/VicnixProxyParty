@@ -19,29 +19,29 @@ public class MongoModel {
     private PartyPlayer partyDAO;
 
     public MongoModel(String uri) {
-        mc = new MongoClient(new MongoClientURI(uri));
+        /*mc = new MongoClient(new MongoClientURI(uri));
         morphia = new Morphia();
         morphia.map(PartyReply.class);
 
         datastore = morphia.createDatastore(mc, "VicnixCore");
         datastore.ensureIndexes();
 
-        partyDAO = new PartyPlayer(PartyReply.class, datastore);
+        partyDAO = new PartyPlayer(PartyReply.class, datastore);*/
     }
 
     public void createParty(Party party){
-        ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
+        /*ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             PartyReply reply = new PartyReply();
             reply.setId(new Random().nextInt(Integer.MAX_VALUE));
             reply.setLeader(party.getLeader().getName());
             reply.setMembers(party.parseMembers());
             reply.setOpen(party.isPartyPublic() ? 1 : 0);
             partyDAO.save(reply);
-        });
+        });*/
     }
 
     public void updateParty(Party party){
-        ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
+        /*ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             Query<PartyReply> query = datastore.createQuery(PartyReply.class).field("leader").contains(party.getLeader().getName());
 
             UpdateOperations<PartyReply> modified = datastore.createUpdateOperations(PartyReply.class)
@@ -49,11 +49,11 @@ public class MongoModel {
                     .inc("open", (party.isPartyPublic() ? 1 : 0));
 
             partyDAO.update(query, modified);
-        });
+        });*/
     }
 
     public void disbandParty(Party party){
-        ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
+        /*ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             String leader = party.getLeader().getName();
 
             PartyReply reply = partyDAO.findOne("leader", leader);
@@ -61,6 +61,6 @@ public class MongoModel {
             if(reply != null){
                 partyDAO.delete(reply);
             }
-        });
+        });*/
     }
 }

@@ -4,6 +4,7 @@ import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.events.PartySendInviteEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.*;
@@ -20,7 +21,7 @@ public class PartySendInviteListener implements Listener {
         ProxiedPlayer player = event.getInvited();
         ProxiedPlayer inviter = event.getInviter();
 
-        TextComponent text = new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------");
+        TextComponent text = new TextComponent(Constants.LINE);
 
         player.sendMessage(text);
 

@@ -92,9 +92,9 @@ public class Party {
             this.participants.add(this.leader);
         }
 
-        this.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
+        this.sendPartyMessage(new TextComponent(Constants.LINE));
         this.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&aLa party fue transferida a &6%s&a por &d%s", player.getName(), leader.getName()))));
-        this.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
+        this.sendPartyMessage(new TextComponent(Constants.LINE));
 
         this.leader = player;
 
