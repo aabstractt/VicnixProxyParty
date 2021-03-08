@@ -35,6 +35,7 @@ import java.util.*;
 public class PartyCommand extends Command implements TabExecutor {
 
     private final Map<String, PartySubCommand> commands = new HashMap<>();
+    private final Map<String, String> commandsAlias = new HashMap<>();
 
     public PartyCommand() {
         super("party", null, "fiesta", "p");
@@ -170,10 +171,18 @@ public class PartyCommand extends Command implements TabExecutor {
 
         if (annotation == null) return;
 
-        commands.put(name == null ? annotation.name() : name, subCommand);
+        if (name == null) {
+            commands.put(annotation.name(), subCommand);
+        } else {
+            commandsAlias.put(name, annotation.name());
+        }
     }
 
     private PartySubCommand getCommand(String name) {
+        String alias = this.commandsAlias.get(name.toLowerCase());
+
+        if (alias != null) name = alias;
+
         return commands.get(name.toLowerCase());
     }
 
@@ -192,7 +201,11 @@ public class PartyCommand extends Command implements TabExecutor {
                 name = name.substring(lastSpaceIndex + 1);
             }
 
-            for (String commandName : this.commands.keySet()) {
+            Set<String> commands = this.commands.keySet();
+
+            commands.addAll(this.commandsAlias.keySet());
+
+            for (String commandName : commands) {
                 if (!commandName.toLowerCase().startsWith(name)) {
                     continue;
                 }
