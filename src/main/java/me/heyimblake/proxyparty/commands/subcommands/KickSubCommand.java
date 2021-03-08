@@ -46,7 +46,7 @@ public class KickSubCommand extends PartySubCommand {
 
         Party party = PartyManager.getInstance().getPartyOf(player);
 
-        if (!CommandConditions.checkTargetOnline(target, player)) return;
+        if (CommandConditions.checkTargetOnline(target, player)) return;
 
         Party targetParty = PartyManager.getInstance().getPartyOf(target);
 

@@ -44,7 +44,7 @@ public class DenySubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
 
-        if (!CommandConditions.blockIfHasParty(player)) return;
+        if (CommandConditions.blockIfHasParty(player)) return;
 
         if (PartyManager.getInstance().getPartyOf(target) == null || !PartyManager.getInstance().getPartyOf(target).getLeader().getUniqueId().equals(target.getUniqueId())) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("" +

@@ -27,7 +27,7 @@ public class PromoteSubCommand extends PartySubCommand {
 
         Party party = PartyManager.getInstance().getPartyOf(player);
 
-        if (!CommandConditions.checkTargetOnline(target, player)) return;
+        if (CommandConditions.checkTargetOnline(target, player)) return;
 
         if (!party.isParticipant(target)) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador no esta en tu party!").color(ChatColor.RED).create()[0]);

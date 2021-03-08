@@ -43,7 +43,7 @@ public class RetractSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
 
-        if (!CommandConditions.checkTargetOnline(target, player)) return;
+        if (CommandConditions.checkTargetOnline(target, player)) return;
 
         Party party = PartyManager.getInstance().getPartyOf(player);
 

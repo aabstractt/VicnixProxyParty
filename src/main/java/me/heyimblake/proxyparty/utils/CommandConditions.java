@@ -28,19 +28,23 @@ public class CommandConditions {
 
     private static PartyManager partyManager = PartyManager.getInstance();
 
-    public static boolean checkTargetOnline(ProxiedPlayer proxiedPlayer, ProxiedPlayer sender) {
+    public static Boolean checkTargetOnline(ProxiedPlayer proxiedPlayer, ProxiedPlayer sender) {
         if (proxiedPlayer == null) {
             sender.sendMessage(Constants.TAG, new ComponentBuilder("El jugador no se pudo encontrar.").color(ChatColor.RED).create()[0]);
-            return false;
+
+            return true;
         }
-        return true;
+
+        return false;
     }
 
-    public static boolean blockIfHasParty(ProxiedPlayer sender) {
+    public static Boolean blockIfHasParty(ProxiedPlayer sender) {
         if (partyManager.hasParty(sender)) {
             sender.sendMessage(Constants.TAG, new ComponentBuilder("Estas ya en una party!").color(ChatColor.RED).create()[0]);
-            return false;
+
+            return true;
         }
-        return true;
+
+        return false;
     }
 }

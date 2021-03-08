@@ -41,7 +41,7 @@ public class FindSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
 
-        if (!CommandConditions.checkTargetOnline(target, player)) return;
+        if (CommandConditions.checkTargetOnline(target, player)) return;
 
         if (PartyManager.getInstance().getPartyOf(target).getLeader().getUniqueId() != PartyManager.getInstance().getPartyOf(player).getLeader().getUniqueId()) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador no es miembro de tu party!").color(ChatColor.RED).create()[0]);
