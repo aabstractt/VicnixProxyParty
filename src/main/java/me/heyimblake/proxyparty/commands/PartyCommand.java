@@ -1,0 +1,216 @@
+package me.heyimblake.proxyparty.commands;
+
+import me.heyimblake.proxyparty.commands.subcommands.*;
+import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.partyutils.PartyRole;
+import me.heyimblake.proxyparty.utils.Constants;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.plugin.Command;
+import net.md_5.bungee.api.plugin.TabExecutor;
+
+import java.util.*;
+
+/**
+ * Copyright (C) 2017 heyimblake
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author heyimblake
+ * @since 10/21/2016
+ */
+public class PartyCommand extends Command implements TabExecutor {
+
+    private final Map<String, PartySubCommand> commands = new HashMap<>();
+
+    public PartyCommand() {
+        super("party", null, "fiesta");
+        registerSubCommand(new InviteSubCommand());
+        registerSubCommand(new AcceptSubCommand(), "accept");
+        registerSubCommand(new AcceptSubCommand());
+        registerSubCommand(new DenySubCommand());
+        registerSubCommand(new DenySubCommand(), "deny");
+        registerSubCommand(new FindSubCommand());
+        registerSubCommand(new ListSubCommand());
+        registerSubCommand(new ListSubCommand(), "list");
+        registerSubCommand(new InvitedSubCommand());
+        registerSubCommand(new RetractSubCommand());
+        registerSubCommand(new KickSubCommand());
+        registerSubCommand(new ChatSubCommand());
+        registerSubCommand(new WarpSubCommand());
+        registerSubCommand(new LeaveSubCommand());
+        registerSubCommand(new LeaveSubCommand(), "leave");
+        registerSubCommand(new JoinSubCommand());
+        registerSubCommand(new JoinSubCommand(), "join");
+        registerSubCommand(new PublicSubCommand());
+        registerSubCommand(new PublicSubCommand(), "public");
+        registerSubCommand(new DisbandSubCommand());
+        registerSubCommand(new ToggleSubCommand());
+
+        registerSubCommand(new PromoteSubCommand());
+        registerSubCommand(new PromoteSubCommand(), "transfer");
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void execute(CommandSender sender, String[] args) {
+        if (!(sender instanceof ProxiedPlayer)) {
+            sender.sendMessage(Constants.TAG, new TextComponent("No puedes ejecutar comandos desde la consola."));
+
+            return;
+        }
+
+        ProxiedPlayer player = ((ProxiedPlayer) sender);
+
+        if (player.getServer().getInfo().getName().contains("Auth")) {
+            player.sendMessage(ChatColor.RED + "No puedes ejecutar comandos en el auth");
+            return;
+        }
+
+        if (args.length <= 0) {
+            showHelpMessage(player);
+
+            return;
+        }
+
+        String[] newArgs = Arrays.copyOfRange(args, 1, args.length);
+
+        PartySubCommand subCommand = this.getCommand(args[0]);
+
+        if (subCommand == null) {
+            showHelpMessage(player);
+
+            return;
+        }
+
+        PartyAnnotationCommand annotations = subCommand.getAnnotations();
+
+        if (annotations == null) return;
+
+        if (PartyRole.getRoleOf(player) == PartyRole.PARTICIPANT && annotations.leaderExclusive()) {
+            player.sendMessage(Constants.TAG, new ComponentBuilder(
+                    "Debes ser lider de la party para usar este comando").color(ChatColor.RED).create()[0]);
+
+            return;
+        }
+
+        if (newArgs.length == 0 && annotations.requiresArgumentCompletion()) {
+            player.sendMessage(Constants.TAG, new TextComponent("Uso: "),
+                    new ComponentBuilder(annotations.syntax()).color(ChatColor.GREEN)
+                            .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/party "
+                                    + args[0] + " "))
+                            .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.YELLOW + "Click to prepare command.")}))
+                            .create()[0]);
+            return;
+        }
+
+        if (PartyManager.getInstance().getPartyOf(player) == null && annotations.mustBeInParty()) {
+            player.sendMessage(Constants.TAG, new ComponentBuilder("Debes estar en una party para ejecutar este comando!").color(ChatColor.RED).create()[0]);
+            return;
+        }
+
+        subCommand.execute(player, newArgs);
+    }
+
+    private void showHelpMessage(ProxiedPlayer player) {
+        TextComponent topMSG = new TextComponent("Comandos de Party");
+
+        topMSG.setColor(ChatColor.GOLD);
+        topMSG.setBold(true);
+
+        player.sendMessage(topMSG);
+
+        TextComponent prepareMSG = new TextComponent("Click para ejecutar el comando.");
+
+        prepareMSG.setColor(ChatColor.WHITE);
+        prepareMSG.setItalic(true);
+
+        for (PartySubCommand command : commands.values()) {
+            PartyAnnotationCommand annotations = command.getAnnotations();
+
+            if (annotations == null) continue;
+
+            TextComponent pt1 = new TextComponent(annotations.syntax());
+            pt1.setColor(ChatColor.YELLOW);
+            pt1.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{prepareMSG}));
+            pt1.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/party " + annotations.name() + " "));
+
+            TextComponent pt2 = new TextComponent(" - ");
+            pt2.setColor(ChatColor.DARK_GRAY);
+
+            TextComponent pt3 = new TextComponent(annotations.description());
+            pt3.setColor(ChatColor.WHITE);
+            pt3.setItalic(true);
+
+            player.sendMessage(pt1, pt2, pt3);
+        }
+
+        player.sendMessage(new TextComponent(" "));
+    }
+
+    private void registerSubCommand(PartySubCommand subCommand) {
+        registerSubCommand(subCommand, null);
+    }
+
+    private void registerSubCommand(PartySubCommand subCommand, String name) {
+        PartyAnnotationCommand annotation = subCommand.getAnnotations();
+
+        if (annotation == null) return;
+
+        commands.put(name == null ? annotation.name() : name, subCommand);
+    }
+
+    private PartySubCommand getCommand(String name) {
+        return commands.get(name.toLowerCase());
+    }
+
+    @Override
+    public Iterable<String> onTabComplete(CommandSender commandSender, String[] args) {
+        List<String> complete = new ArrayList<>();
+
+        if (args.length == 0) return complete;
+
+        if (args.length == 1) {
+            String name = args[0];
+
+            int lastSpaceIndex = name.lastIndexOf(' ');
+
+            if (lastSpaceIndex >= 0) {
+                name = name.substring(lastSpaceIndex + 1);
+            }
+
+            for (String commandName : this.commands.keySet()) {
+                if (!commandName.toLowerCase().startsWith(name)) {
+                    continue;
+                }
+
+                if (complete.contains(commandName)) continue;
+
+                complete.add(commandName);
+            }
+
+            Collections.sort(complete);
+
+            return complete;
+        }
+
+        PartySubCommand command = this.getCommand(args[0]);
+
+        if (command == null) return complete;
+
+        return command.getComplete(Arrays.copyOfRange(args, 1, args.length));
+    }
+}
