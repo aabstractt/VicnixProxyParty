@@ -62,14 +62,6 @@ public class InviteSubCommand extends PartySubCommand {
             return;
         }
 
-        Party targetParty = PartyManager.getInstance().getPartyOf(target);
-
-        if (targetParty != null) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador ya esta en una party!").color(ChatColor.RED).create()[0]);
-
-            return;
-        }
-
         Party party = !PartyManager.getInstance().hasParty(player) ? new PartyCreator().setLeader(player).create() : PartyManager.getInstance().getPartyOf(player);
 
         if (party.getInvited().contains(target)) {
@@ -85,9 +77,7 @@ public class InviteSubCommand extends PartySubCommand {
         party.invitePlayer(target);
 
         party.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
-
-        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a &6%s&e a la party! Tiene &c%s&e segundos para &eaceptar.", player.getName(), target.getName(), "60"))));
-
+        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &ainvito a &6%s&a a la party! Tiene &c%s&a segundos para &aaceptar.", player.getName(), target.getName(), "60"))));
         party.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
     }
 

@@ -3,7 +3,6 @@ package me.heyimblake.proxyparty.listeners;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.events.PartyPlayerJoinEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -44,7 +43,5 @@ public class PartyPlayerJoinListener implements Listener {
         }
 
         ProxyParty.getInstance().getMongo().updateParty(event.getParty());
-//        ProxyParty.getInstance().getRedis().updateMembers(event.getParty());
-        new ActionLogEntry("accept", joined.getUniqueId(), new String[]{party.getLeader().getName()}).log();
     }
 }

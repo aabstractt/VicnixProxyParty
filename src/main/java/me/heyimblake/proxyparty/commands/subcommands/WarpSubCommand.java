@@ -3,7 +3,6 @@ package me.heyimblake.proxyparty.commands.subcommands;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 /**
@@ -39,7 +38,5 @@ public class WarpSubCommand extends PartySubCommand {
         Party party = PartyManager.getInstance().getPartyOf(player);
 
         party.warpParticipants(player.getServer().getInfo());
-
-        new ActionLogEntry("warp", player.getUniqueId()).log();
     }
 }

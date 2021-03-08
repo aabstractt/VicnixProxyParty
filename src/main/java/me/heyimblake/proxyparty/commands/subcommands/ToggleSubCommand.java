@@ -2,7 +2,6 @@ package me.heyimblake.proxyparty.commands.subcommands;
 
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -61,8 +60,6 @@ public class ToggleSubCommand extends PartySubCommand {
         msg2.setColor(ChatColor.GREEN);
 
         player.sendMessage(Constants.TAG, msg, msg2);
-
-        new ActionLogEntry("toggle", player.getUniqueId(), new String[]{settingString}).log();
     }
 
     private void sendAllSettings(ProxiedPlayer player) {

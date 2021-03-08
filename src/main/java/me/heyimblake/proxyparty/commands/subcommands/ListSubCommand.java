@@ -3,7 +3,6 @@ package me.heyimblake.proxyparty.commands.subcommands;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -73,7 +72,5 @@ public class ListSubCommand extends PartySubCommand {
             player.sendMessage(Constants.TAG, line1);
             player.sendMessage(Constants.TAG, new ComponentBuilder("No hay participanes en la party.").color(ChatColor.RED).create()[0]);
         }
-
-        new ActionLogEntry("list", player.getUniqueId()).log();
     }
 }

@@ -3,7 +3,6 @@ package me.heyimblake.proxyparty.commands.subcommands;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 

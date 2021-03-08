@@ -4,7 +4,6 @@ import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.events.PartySendInviteEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.*;
@@ -40,14 +39,12 @@ public class PartySendInviteListener implements Listener {
         ProxiedPlayer player = event.getInvited();
         ProxiedPlayer inviter = event.getInviter();
 
-        new ActionLogEntry("invite", inviter.getUniqueId(), new String[]{player.getName()}).log();
-
         TextComponent text = new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------");
 
         player.sendMessage(text);
 
-        player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &ete ha invitado unirte a su party!", inviter.getName()))));
-        player.sendMessage(new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', String.format("&eTienes &c%s&e segundos para aceptar. &6Click aquí para unirte!", "60")))
+        player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &ate ha invitado unirte a su party!", inviter.getName()))));
+        player.sendMessage(new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', String.format("&aTienes &c%s&a segundos para aceptar. &6Click aquí para unirte!", "60")))
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party accept " + inviter.getName()))
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent("Click para ejecutar\n/party accept " + inviter.getName())})).create()[0]);
 
@@ -64,11 +61,15 @@ public class PartySendInviteListener implements Listener {
 
             player.sendMessage(text);
 
-            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de &a%s &eha expirado!", inviter.getName()))));
+            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&aLa invitacion de party de &d%s &aha expirado!", inviter.getName()))));
 
             player.sendMessage(text);
 
             party.getInvited().remove(player);
-        }, 60, TimeUnit.SECONDS);
+
+            if (party.getInvited().size() <= 0 && party.getParticipants().size() <= 0) {
+                party.disband();
+            }
+        }, 10, TimeUnit.SECONDS);
     }
 }

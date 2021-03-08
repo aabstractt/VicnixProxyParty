@@ -37,7 +37,7 @@ public class PartyCommand extends Command implements TabExecutor {
     private final Map<String, PartySubCommand> commands = new HashMap<>();
 
     public PartyCommand() {
-        super("party", null, "fiesta");
+        super("party", null, "fiesta", "p");
         registerSubCommand(new InviteSubCommand());
         registerSubCommand(new AcceptSubCommand(), "accept");
         registerSubCommand(new AcceptSubCommand());

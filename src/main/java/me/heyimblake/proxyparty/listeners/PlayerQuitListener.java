@@ -36,7 +36,7 @@ public class PlayerQuitListener implements Listener {
 
         Party party = PartyManager.getInstance().getPartyOf(player);
 
-        if (party.getAllParticipants().size() <= 1) {
+        if (party.getAllParticipants().size() <= 2) {
             party.disband();
 
             return;

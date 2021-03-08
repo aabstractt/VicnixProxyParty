@@ -1,10 +1,12 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
-import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
-import me.heyimblake.proxyparty.commands.PartySubCommand;
+import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.partyutils.PartyRole;
+import me.heyimblake.proxyparty.utils.Constants;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 /**
@@ -38,16 +40,18 @@ public class LeaveSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         Party party = PartyManager.getInstance().getPartyOf(player);
 
-        party.removeParticipant(player);
-
-        if (PartyRole.getRoleOf(player) == PartyRole.LEADER && party.getParticipants().size() >= 2) {
-            party.setLeader();
+        if (party.getAllParticipants().size() <= 2) {
+            party.disband();
 
             return;
         }
 
-        if (party.getParticipants().size() >= 1) return;
+        if (PartyRole.getRoleOf(player) == PartyRole.LEADER) {
+            party.setLeader();
+        }
 
-        party.disband();
+        party.removeParticipant(player);
+
+        PartyManager.getInstance().getActiveParties().forEach(party1 -> party1.getInvited().remove(player));
     }
 }

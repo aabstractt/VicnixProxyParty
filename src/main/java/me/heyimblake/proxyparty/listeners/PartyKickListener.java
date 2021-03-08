@@ -2,7 +2,6 @@ package me.heyimblake.proxyparty.listeners;
 
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.events.PartyKickEvent;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -36,10 +35,6 @@ public class PartyKickListener implements Listener {
 
         player.sendMessage(Constants.TAG, new ComponentBuilder("Fuiste kickeado de la party!").color(ChatColor.RED).bold(true).create()[0]);
 
-//        ProxyParty.getInstance().getRedis().updateMembers(event.getParty());
-
         ProxyParty.getInstance().getMongo().updateParty(event.getParty());
-
-        new ActionLogEntry("kick", event.getParty().getLeader().getUniqueId(), new String[]{player.getName()}).log();
     }
 }

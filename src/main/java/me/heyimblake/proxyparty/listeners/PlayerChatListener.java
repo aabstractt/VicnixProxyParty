@@ -3,7 +3,6 @@ package me.heyimblake.proxyparty.listeners;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
@@ -57,7 +56,5 @@ public class PlayerChatListener implements Listener {
         event.setCancelled(true);
 
         party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", player.getName(), event.getMessage())));
-
-        new ActionLogEntry("chat", player.getUniqueId(), new String[]{event.getMessage()}).log();
     }
 }

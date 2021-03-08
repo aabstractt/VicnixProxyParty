@@ -2,7 +2,6 @@ package me.heyimblake.proxyparty.listeners;
 
 import me.heyimblake.proxyparty.events.PartyAcceptInviteEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -36,10 +35,7 @@ public class PartyAcceptInviteListener implements Listener {
         ProxiedPlayer accepter = event.getAccepter();
 
         party.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
-        party.sendPartyMessage(ChatColor.GOLD + accepter.getName() + ChatColor.YELLOW + " se ha unido a la party!");
+        party.sendPartyMessage(ChatColor.LIGHT_PURPLE + accepter.getName() + ChatColor.GREEN + " se ha unido a la party!");
         party.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
-
-//        ProxyParty.getInstance().getRedis().updateMembers(event.getParty());
-        new ActionLogEntry("accept", accepter.getUniqueId(), new String[]{party.getLeader().getName()}).log();
     }
 }

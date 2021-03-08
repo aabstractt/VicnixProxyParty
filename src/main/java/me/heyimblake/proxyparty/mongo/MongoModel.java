@@ -29,7 +29,6 @@ public class MongoModel {
         partyDAO = new PartyPlayer(PartyReply.class, datastore);*/
     }
 
-
     public void createParty(Party party){
         /*ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             PartyReply reply = new PartyReply();
@@ -41,26 +40,24 @@ public class MongoModel {
         });*/
     }
 
-
     public void updateParty(Party party){
         /*ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
-
             Query<PartyReply> query = datastore.createQuery(PartyReply.class).field("leader").contains(party.getLeader().getName());
 
-            UpdateOperations<PartyReply> modified =
-                    datastore.createUpdateOperations(PartyReply.class)
+            UpdateOperations<PartyReply> modified = datastore.createUpdateOperations(PartyReply.class)
                     .set("members", party.parseMembers())
                     .inc("open", (party.isPartyPublic() ? 1 : 0));
 
             partyDAO.update(query, modified);
-
         });*/
     }
 
     public void disbandParty(Party party){
         /*ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             String leader = party.getLeader().getName();
+
             PartyReply reply = partyDAO.findOne("leader", leader);
+
             if(reply != null){
                 partyDAO.delete(reply);
             }

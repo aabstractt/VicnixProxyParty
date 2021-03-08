@@ -14,17 +14,17 @@ import java.util.Set;
 
 /**
  * Copyright (C) 2017 heyimblake
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -35,7 +35,7 @@ public class Party {
 
     private ProxiedPlayer leader;
     private final Set<ProxiedPlayer> participants;
-    private final Set<ProxiedPlayer> invited;
+    private Set<ProxiedPlayer> invited;
     private boolean partyPublic = false;
 
     /**
@@ -66,8 +66,6 @@ public class Party {
             PartyManager.getInstance().getPlayerPartyMap().put(participant, this);
         });
 
-        /*PartyRole.setRoleOf(leader, PartyRole.LEADER);
-        PartyManager.getInstance().getPlayerPartyMap().put(this.leader, this);*/
         PartyManager.getInstance().getActiveParties().add(this);
 
         ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyCreateEvent(this));
@@ -86,8 +84,8 @@ public class Party {
     public Integer getMax() {
         int maxPerParty = 5;
 
-        for(int i = maxPerParty; i <= 30; i++){
-            if(this.leader.hasPermission("party.maxsize."+i)){
+        for (int i = maxPerParty; i <= 30; i++) {
+            if (this.leader.hasPermission("party.maxsize." + i)) {
                 return i;
             }
         }
@@ -114,12 +112,14 @@ public class Party {
         }
 
         this.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
-        this.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a &6%s&e por &a%s", player.getName(), leader.getName()))));
+        this.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&aLa party fue transferida a &6%s&a por &d%s", player.getName(), leader.getName()))));
         this.sendPartyMessage(new TextComponent(ChatColor.BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------"));
 
         this.leader = player;
 
         PartyRole.setRoleOf(player, PartyRole.LEADER);
+
+        this.invited = new HashSet<>();
 
         if (this.isParticipant(player)) {
             this.participants.remove(player);
@@ -248,7 +248,7 @@ public class Party {
     }
 
     @SuppressWarnings("deprecation")
-    public void sendPartyMessage(String string){
+    public void sendPartyMessage(String string) {
         getAllParticipants().forEach(proxiedPlayer -> proxiedPlayer.sendMessage(string));
     }
 
@@ -268,16 +268,16 @@ public class Party {
         PartyManager.getInstance().getActiveParties().remove(this);
     }
 
-    public String parseMembers(){
+    public String parseMembers() {
         String members = "";
 
-        if(participants.isEmpty()) return members;
+        if (participants.isEmpty()) return members;
 
-        for(ProxiedPlayer proxiedPlayer : this.participants){
+        for (ProxiedPlayer proxiedPlayer : this.participants) {
             members += proxiedPlayer.getName() + ",";
         }
 
-        return members.substring(0, members.length()-1);
+        return members.substring(0, members.length() - 1);
     }
 
     public Boolean isPartyPublic() {

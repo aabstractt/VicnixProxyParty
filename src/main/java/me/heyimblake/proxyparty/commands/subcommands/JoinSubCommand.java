@@ -49,26 +49,26 @@ public class JoinSubCommand extends PartySubCommand {
 
         if (!CommandConditions.blockIfHasParty(player)) return;
 
-        if (PartyManager.getInstance().getPartyOf(target) == null || !PartyManager.getInstance().getPartyOf(target).getLeader().getUniqueId().equals(target.getUniqueId())) {
+        Party party = PartyManager.getInstance().getPartyOf(target);
+
+        if (party == null || !party.getLeader().getUniqueId().equals(target.getUniqueId())) {
             player.sendMessage(Constants.TAG, new ComponentBuilder(
                     "No puedes acceder a esta party no existe o tú la creaste.")
                     .color(ChatColor.RED).create()[0]);
             return;
         }
 
-        if (PartyManager.getInstance().getPartyOf(target).getParticipants().size() >= PartyManager.getInstance().getPartyOf(target).getMax()) {
+        if (party.getParticipants().size() >= party.getMax()) {
             player.sendMessage(Constants.TAG, new ComponentBuilder(
                     "La party a la que te intentas unir esta totalmente llena!")
                     .color(ChatColor.RED).bold(true).create()[0]);
             return;
         }
 
-        if (!PartyManager.getInstance().getPartyOf(target).isPartyPublic()) {
+        if (!party.isPartyPublic()) {
             player.sendMessage(ChatColor.RED + "¡Está party no esta publica!");
             return;
         }
-
-        Party party = PartyManager.getInstance().getPartyOf(target);
 
         party.addParticipant(player);
 

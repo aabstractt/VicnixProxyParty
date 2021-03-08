@@ -1,15 +1,12 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
-import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import me.heyimblake.proxyparty.utils.CommandConditions;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -54,7 +51,5 @@ public class FindSubCommand extends PartySubCommand {
         ServerInfo serverInfo = target.getServer().getInfo();
 
         player.sendMessage(ChatColor.AQUA+target.getName()+ ChatColor.GREEN+" esta jugando en "+ChatColor.AQUA+serverInfo.getName()+".");
-
-        new ActionLogEntry("find", player.getUniqueId(), new String[]{target.getName()}).log();
     }
 }

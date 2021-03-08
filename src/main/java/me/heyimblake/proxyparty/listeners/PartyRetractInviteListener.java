@@ -1,7 +1,6 @@
 package me.heyimblake.proxyparty.listeners;
 
 import me.heyimblake.proxyparty.events.PartyRetractInviteEvent;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -29,6 +28,7 @@ import net.md_5.bungee.event.EventHandler;
  * @since 10/26/2016
  */
 public class PartyRetractInviteListener implements Listener {
+
     @EventHandler
     public void onPartyRetractInvite(PartyRetractInviteEvent event) {
         ProxiedPlayer retracted = event.getRetracted();
@@ -36,6 +36,5 @@ public class PartyRetractInviteListener implements Listener {
 
         retracted.sendMessage(Constants.TAG, new ComponentBuilder(String.format("%s ha removido tu invitacion de la party.",
                 retractor.getName())).color(ChatColor.GREEN).create()[0]);
-        new ActionLogEntry("retract", retractor.getUniqueId(), new String[]{retracted.getName()}).log();
     }
 }

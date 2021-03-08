@@ -1,19 +1,10 @@
 package me.heyimblake.proxyparty;
 
-import com.google.common.io.ByteStreams;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import me.heyimblake.proxyparty.commands.PartyCommand;
 import me.heyimblake.proxyparty.listeners.*;
 import me.heyimblake.proxyparty.mongo.MongoModel;
-import me.heyimblake.proxyparty.utils.ActionLogEntry;
 import me.heyimblake.proxyparty.utils.ConfigManager;
 import net.md_5.bungee.api.plugin.Plugin;
-
-import java.io.*;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Copyright (C) 2017 heyimblake
@@ -39,8 +30,6 @@ public final class ProxyParty extends Plugin {
     private static ProxyParty instance;
 
     private MongoModel mongo;
-
-    private boolean loggingEnabled = false;
     private ConfigManager configManager;
 
     public static ProxyParty getInstance() {
@@ -55,7 +44,9 @@ public final class ProxyParty extends Plugin {
 
         registerListeners();
 
-        setupLogFile();
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdir();
+        }
 
         configManager = new ConfigManager();
 
@@ -78,55 +69,6 @@ public final class ProxyParty extends Plugin {
         getProxy().getPluginManager().registerListener(this, new PartyWarpListener());
         getProxy().getPluginManager().registerListener(this, new PartyRetractInviteListener());
         getProxy().getPluginManager().registerListener(this, new PartyAcceptInviteListener());
-    }
-
-    private void setupLogFile() {
-        if (!getDataFolder().exists()) {
-            getDataFolder().mkdir();
-        }
-
-        String logFileName = "log.json";
-        File logFile = new File(getDataFolder().getPath(), logFileName);
-
-        if (!logFile.exists()) {
-            try {
-                logFile.createNewFile();
-
-                try (InputStream is = getResourceAsStream(logFileName);
-                     OutputStream os = new FileOutputStream(logFile)) {
-                    ByteStreams.copy(is, os);
-
-                    os.close();
-                    is.close();
-
-                    this.getLogger().log(Level.INFO, logFileName + " was created with no issues!");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-
-                this.getLogger().log(Level.WARNING, "Could not create " + logFileName + ". Disabling Logging for now!");
-
-                this.loggingEnabled = false;
-            }
-
-            return;
-        }
-
-        if (!this.loggingEnabled) return;
-        this.getLogger().log(Level.INFO, "Detected " + logFileName + ".");
-
-        try {
-            Gson gson = new Gson();
-            Type type = new TypeToken<List<ActionLogEntry>>() {}.getType();
-
-            List<ActionLogEntry> entires = gson.fromJson(new FileReader(logFile), type);
-
-            ActionLogEntry.savedEntries.addAll(entires);
-
-            this.getLogger().log(Level.INFO, "Imported old actions from " + logFileName + ".");
-        } catch (FileNotFoundException e) {
-            //Not really possible as it's created/verified above, but oh well, here's a catch block!
-        }
     }
 
     public ConfigManager getConfigManager() {
