@@ -39,6 +39,9 @@ public class RetractSubCommand extends PartySubCommand {
         player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Haz removido la invitación " +
                 "de la party al jugador %s.", target.getName())).color(ChatColor.GREEN).create()[0]);
 
+        target.sendMessage(Constants.TAG, new ComponentBuilder(String.format("%s ha removido tu invitacion de la party.",
+                player.getName())).color(ChatColor.GREEN).create()[0]);
+
         if (party.getInvited().size() <= 0 && party.getParticipants().size() <= 0) {
             party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
         }

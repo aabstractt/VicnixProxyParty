@@ -5,6 +5,7 @@ import me.heyimblake.proxyparty.events.*;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -74,6 +75,8 @@ public class Party {
         for (String permission : config.getKeys()) {
             if (!this.leader.hasPermission(permission)) continue;
 
+            if (maxPerParty > config.getInt(permission)) continue;
+
             maxPerParty = config.getInt(permission);
         }
 
@@ -102,6 +105,8 @@ public class Party {
     public void setLeader(ProxiedPlayer player) {
         ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyPromoteEvent(this, player, this.leader));
 
+        ProxyParty.getInstance().getMongo().disbandParty(this);
+
         if (this.leader != null) {
             PartyRole.setRoleOf(this.leader, PartyRole.PARTICIPANT);
 
@@ -124,6 +129,8 @@ public class Party {
 
         PartyManager.getInstance().getPlayerPartyMap().remove(player);
         PartyManager.getInstance().getPlayerPartyMap().put(player, this);
+
+        ProxyParty.getInstance().getMongo().createParty(this);
     }
 
     /**
@@ -190,6 +197,12 @@ public class Party {
         PartyManager.getInstance().getPlayerPartyMap().put(player, this);
         PartyRole.setRoleOf(player, PartyRole.PARTICIPANT);
 
+        if (this.getParticipants().size() >= this.getMax()) {
+            this.getLeader().sendMessage(Constants.TAG,
+                    new ComponentBuilder(
+                            String.format("Tu party ha alcanzado el máximo de jugadores (%s).", this.getMax())).color(ChatColor.RED).create()[0]);
+        }
+
         ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyPlayerJoinEvent(this, player));
     }
 
@@ -221,8 +234,6 @@ public class Party {
      * @param serverInfo the server to send the participants to
      */
     public void warpParticipants(ServerInfo serverInfo) {
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyWarpEvent(this));
-
         this.participants.forEach(participant -> participant.connect(serverInfo));
     }
 

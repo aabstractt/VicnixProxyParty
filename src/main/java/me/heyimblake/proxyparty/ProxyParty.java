@@ -21,19 +21,19 @@ public final class ProxyParty extends Plugin {
     public void onEnable() {
         instance = this;
 
-        getProxy().getPluginManager().registerCommand(this, new PartyCommand());
+        this.getProxy().getPluginManager().registerCommand(this, new PartyCommand());
 
-        registerListeners();
+        this.registerListeners();
 
-        if (!getDataFolder().exists()) {
-            getDataFolder().mkdir();
+        if (!this.getDataFolder().exists()) {
+            this.getDataFolder().mkdir();
         }
 
-        configManager = new ConfigManager();
+        this.configManager = new ConfigManager();
 
-        configManager.initialize();
+        this.configManager.initialize();
 
-        this.mongo = new MongoModel(configManager.getString("mongo.uri"));
+        this.mongo = new MongoModel(this.configManager.getString("mongo.uri"));
     }
 
     private void registerListeners() {
@@ -46,10 +46,6 @@ public final class ProxyParty extends Plugin {
         getProxy().getPluginManager().registerListener(this, new PartyPlayerQuitListener());
         getProxy().getPluginManager().registerListener(this, new PartyDisbandListener());
         getProxy().getPluginManager().registerListener(this, new PartyKickListener());
-        getProxy().getPluginManager().registerListener(this, new PartyDenyInviteListener());
-        getProxy().getPluginManager().registerListener(this, new PartyWarpListener());
-        getProxy().getPluginManager().registerListener(this, new PartyRetractInviteListener());
-        getProxy().getPluginManager().registerListener(this, new PartyAcceptInviteListener());
     }
 
     public ConfigManager getConfigManager() {

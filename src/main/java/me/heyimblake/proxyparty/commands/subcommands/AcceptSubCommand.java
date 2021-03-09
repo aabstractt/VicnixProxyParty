@@ -10,6 +10,7 @@ import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 @PartyAnnotationCommand(
@@ -48,6 +49,10 @@ public class AcceptSubCommand extends PartySubCommand {
 
             party.addParticipant(player);
             party.getInvited().remove(player);
+
+            party.sendPartyMessage(new TextComponent(Constants.LINE));
+            party.sendPartyMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " se ha unido a la party!");
+            party.sendPartyMessage(new TextComponent(Constants.LINE));
 
             ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyAcceptInviteEvent(party, player));
 
