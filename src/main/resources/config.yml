@@ -8,6 +8,16 @@
 # Default: -1
 maxPartySize: '-1'
 
+permissions-partys:
+ - "hero"
+ - "titan"
+
+permissions-party-size:
+ hero-party: 5
+ titan-party: 7
+
+default-party-size: 3
+
 # What prefix do you want the plugin to use in messages?
 # Formatting/Color codes available to use. See http://minecraft.gamepedia.com/Formatting_codes
 # Use "&<CODE>" to use formatting codes. Example: "&6" for Gold and "&6&l" for Bold Gold.

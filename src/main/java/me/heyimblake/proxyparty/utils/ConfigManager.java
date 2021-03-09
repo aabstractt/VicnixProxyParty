@@ -9,27 +9,23 @@ import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class ConfigManager {
+
     private final String fileName = "config.yml";
     private Configuration configuration = null;
 
     public void initialize() {
         saveDefaultConfig();
+
         try {
-            configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(getConfigFile());
+            this.configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(getConfigFile());
+
             Constants.TAG = new TextComponent(ChatColor.GRAY + " ");
-            int max;
-            try {
-                max = Integer.parseInt(ProxyParty.getInstance().getConfigManager().getString("maxPartySize"));
-                if (max <= 0)
-                    max = -1;
-            } catch (Exception ignored) {
-                ProxyParty.getInstance().getLogger().log(Level.WARNING, "Error while trying to get the defined max party size. Set to UNLIMITED now.");
-                max = -1;
-            }
-            Constants.MAX_PARTY_SIZE = max;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,5 +73,17 @@ public class ConfigManager {
 
     public String getString(String key) {
         return configuration.getString(key);
+    }
+
+    public Integer getInt(String key) {
+        return this.configuration.getInt(key);
+    }
+
+    public List<?> getList(String key) {
+        return this.configuration.getList(key);
+    }
+
+    public List<String> getStringList(String key) {
+        return this.getConfiguration().getStringList(key);
     }
 }

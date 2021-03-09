@@ -18,7 +18,7 @@ public class PartyPlayerJoinListener implements Listener {
         if (party.getParticipants().size() >= party.getMax()) {
             party.getLeader().sendMessage(Constants.TAG,
                     new ComponentBuilder(
-                            String.format("Tu party ha alcanzado el máximo de jugadores (%s).", Constants.MAX_PARTY_SIZE)).color(ChatColor.RED).create()[0]);
+                            String.format("Tu party ha alcanzado el máximo de jugadores (%s).", party.getMax())).color(ChatColor.RED).create()[0]);
         }
 
         ProxyParty.getInstance().getMongo().updateParty(event.getParty());

@@ -8,6 +8,7 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.config.Configuration;
 
 import java.util.*;
 
@@ -62,12 +63,18 @@ public class Party {
 
 
     public Integer getMax() {
-        int maxPerParty = 5;
+        Integer maxPerParty = ProxyParty.getInstance().getConfigManager().getInt("default-party-size");
 
-        for (int i = maxPerParty; i <= 30; i++) {
-            if (this.leader.hasPermission("party.maxsize." + i)) {
-                return i;
-            }
+        if (this.leader == null) {
+            return maxPerParty;
+        }
+
+        Configuration config = (Configuration) ProxyParty.getInstance().getConfigManager().getConfiguration().get("permissions-party-size");
+
+        for (String permission : config.getKeys()) {
+            if (!this.leader.hasPermission(permission)) continue;
+
+            maxPerParty = config.getInt(permission);
         }
 
         return maxPerParty;

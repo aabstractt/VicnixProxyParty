@@ -39,8 +39,7 @@ public class AcceptSubCommand extends PartySubCommand {
         }
 
         if (party.getInvited().contains(player)) {
-            if (Constants.MAX_PARTY_SIZE <= party.getParticipants().size()
-                    && Constants.MAX_PARTY_SIZE != -1) {
+            if (party.getParticipants().size() >= party.getMax()) {
                 player.sendMessage(Constants.TAG, new ComponentBuilder(
                         "La party a la que te intentas unir esta totalmente llena!")
                         .color(ChatColor.RED).bold(true).create()[0]);

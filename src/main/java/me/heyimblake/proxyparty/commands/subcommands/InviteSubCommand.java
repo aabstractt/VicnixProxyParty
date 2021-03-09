@@ -9,8 +9,7 @@ import me.heyimblake.proxyparty.partyutils.PartySetting;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.ArrayList;
@@ -31,14 +30,14 @@ public class InviteSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         ProxiedPlayer target = ProxyParty.getInstance().getProxy().getPlayer(args[0]);
 
-        if (target == null || target.getUniqueId() == player.getUniqueId()) {
+        /*if (target == null || target.getUniqueId() == player.getUniqueId()) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
-        }
+        }*/
 
         if(target.getServer().getInfo().getName().contains("Auth")){
-            player.sendMessage(ChatColor.RED+"El jugador no ha iniciado sesión no puedes invitarlo.");
+            player.sendMessage(ChatColor.RED + "El jugador no ha iniciado sesión no puedes invitarlo.");
 
             return;
         }
@@ -52,6 +51,17 @@ public class InviteSubCommand extends PartySubCommand {
 
         if (PartySetting.PARTY_INVITE_RECEIVE_TOGGLE_OFF.getPlayers().contains(target)) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador tiene desactivadas la invitaciones a una party!.").color(ChatColor.RED).create()[0]);
+            return;
+        }
+
+        if (party.getAllParticipants().size() >= party.getMax()) {
+            BaseComponent[] message = new ComponentBuilder("Tu party esta totalmente llena, compra un rango mas superior en").color(ChatColor.RED)
+                    .append("\n tienda.vincix.net ").color(ChatColor.GREEN)
+                    .event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://tienda.vicnix.net"))
+                    .append("para tener mas slots de party!").color(ChatColor.RED).create();
+
+            player.sendMessage(message[0], message[1], message[2]);
+
             return;
         }
 
