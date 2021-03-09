@@ -31,11 +31,11 @@ public class InviteSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         ProxiedPlayer target = ProxyParty.getInstance().getProxy().getPlayer(args[0]);
 
-        /*if (target == null || target.getUniqueId() == player.getUniqueId()) {
+        if (target == null || target.getUniqueId() == player.getUniqueId()) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
-        }*/
+        }
 
         if(target.getServer().getInfo().getName().contains("Auth")){
             player.sendMessage(ChatColor.RED+"El jugador no ha iniciado sesión no puedes invitarlo.");
@@ -58,7 +58,7 @@ public class InviteSubCommand extends PartySubCommand {
         party.invitePlayer(target);
 
         party.sendPartyMessage(new TextComponent(Constants.LINE));
-        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &einvito a &6%s&a a la party! Tiene &c%s&e segundos para &eaceptar.", player.getName(), target.getName(), "60"))));
+        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &einvito a &6%s&e a la party! Tiene &c%s&e segundos para &eaceptar.", player.getName(), target.getName(), "60"))));
         party.sendPartyMessage(new TextComponent(Constants.LINE));
     }
 
@@ -75,7 +75,7 @@ public class InviteSubCommand extends PartySubCommand {
         }
 
         for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            if (!player.getName().toLowerCase().startsWith(name)) {
+            if (!player.getName().toLowerCase().startsWith(name.toLowerCase())) {
                 continue;
             }
 

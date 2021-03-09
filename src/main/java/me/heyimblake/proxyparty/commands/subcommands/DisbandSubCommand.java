@@ -30,7 +30,7 @@ public class DisbandSubCommand extends PartySubCommand {
         }
 
         if(!party.getLeader().getName().equalsIgnoreCase(player.getName())){
-            player.sendMessage(ChatColor.RED+"No puedes eliminar una party sin ser lider.");
+            player.sendMessage(ChatColor.RED + "No puedes eliminar una party sin ser lider.");
             return;
         }
 

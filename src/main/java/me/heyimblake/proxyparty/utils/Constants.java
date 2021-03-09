@@ -7,5 +7,5 @@ public class Constants {
     public static TextComponent TAG;
     public static int MAX_PARTY_SIZE;
 
-    public static String LINE = ChatColor.DARK_BLUE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------";
+    public static String LINE = ChatColor.DARK_GREEN + ChatColor.STRIKETHROUGH.toString() + "--------------------------------";
 }

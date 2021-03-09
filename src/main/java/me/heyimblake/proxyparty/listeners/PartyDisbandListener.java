@@ -13,12 +13,6 @@ public class PartyDisbandListener implements Listener {
 
     @EventHandler
     public void onPartyDisband(PartyDisbandEvent event) {
-        Party party = event.getParty();
-
-        party.sendPartyMessage(new TextComponent(Constants.LINE));
-        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &aha borrado la party!", party.getLeader().getName()))));
-        party.sendPartyMessage(new TextComponent(Constants.LINE));
-
         ProxyParty.getInstance().getMongo().disbandParty(event.getParty());
     }
 }

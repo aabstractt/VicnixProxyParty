@@ -25,10 +25,21 @@ public class PartySendInviteListener implements Listener {
 
         player.sendMessage(text);
 
-        player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &ate ha invitado unirte a su party!", inviter.getName()))));
-        player.sendMessage(new ComponentBuilder(ChatColor.translateAlternateColorCodes('&', String.format("&aTienes &c%s&a segundos para aceptar. &6Click aquí para unirte!", "60")))
-                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party accept " + inviter.getName()))
-                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent("Click para ejecutar\n/party accept " + inviter.getName())})).create()[0]);
+        BaseComponent[] clickMessages = new ComponentBuilder("[ACEPTAR]").color(ChatColor.GREEN).bold(true)
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party aceptar " + inviter.getName()))
+                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para aceptar la invitacion!")}))
+                .append(" - ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.GRAY)
+                .append("[RECHAZAR]").color(ChatColor.RED).bold(true)
+                .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party rechazar " + inviter.getName()))
+                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para rechazar la invitacion")})).create();
+
+        player.sendMessage(new TextComponent(" "));
+        player.sendMessage(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create()[0]);
+        player.sendMessage(new ComponentBuilder(String.format("%s te ha invitado a unirte a su party!",
+                inviter.getName())).color(ChatColor.YELLOW).create()[0]);
+        player.sendMessage(new TextComponent(" "));
+        player.sendMessage(clickMessages[0], clickMessages[1], clickMessages[2]);
+        player.sendMessage(new TextComponent(" "));
 
         player.sendMessage(text);
 
@@ -43,15 +54,15 @@ public class PartySendInviteListener implements Listener {
 
             player.sendMessage(text);
 
-            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&aLa invitacion de party de &d%s &aha expirado!", inviter.getName()))));
+            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de &d%s &eha expirado!", inviter.getName()))));
 
             player.sendMessage(text);
 
             party.getInvited().remove(player);
 
             if (party.getInvited().size() <= 0 && party.getParticipants().size() <= 0) {
-                party.disband();
+                party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
             }
-        }, 10, TimeUnit.SECONDS);
+        }, 60, TimeUnit.SECONDS);
     }
 }

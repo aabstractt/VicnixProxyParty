@@ -50,7 +50,7 @@ public class KickSubCommand extends PartySubCommand {
         player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Haz kickeado a %s de tu party!!", target.getName())).color(ChatColor.YELLOW).create()[0]);
 
         if (party.getParticipants().size() <= 0) {
-            party.disband();
+            party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
         }
     }
 }

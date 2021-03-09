@@ -40,7 +40,7 @@ public class RetractSubCommand extends PartySubCommand {
                 "de la party al jugador %s.", target.getName())).color(ChatColor.GREEN).create()[0]);
 
         if (party.getInvited().size() <= 0 && party.getParticipants().size() <= 0) {
-            party.disband();
+            party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
         }
     }
 }
