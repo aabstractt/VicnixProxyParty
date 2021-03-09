@@ -102,7 +102,7 @@ public class Party {
         }
 
         this.sendPartyMessage(new TextComponent(Constants.LINE));
-        this.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a &6%s&e por &d%s", player.getName(), leader.getName()))));
+        this.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a &6%s&e por &a%s", player.getName(), leader.getName()))));
         this.sendPartyMessage(new TextComponent(Constants.LINE));
 
         this.leader = player;
@@ -260,7 +260,7 @@ public class Party {
      * Disbands the current party instance.
      */
     public void disband() {
-        this.disband(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &eha borrado la party!", this.leader.getName())));
+        this.disband(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &eha borrado la party!", this.leader.getName())));
     }
 
     public void disband(String message) {

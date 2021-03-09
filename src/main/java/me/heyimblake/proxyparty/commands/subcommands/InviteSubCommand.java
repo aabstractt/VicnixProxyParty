@@ -58,7 +58,7 @@ public class InviteSubCommand extends PartySubCommand {
         party.invitePlayer(target);
 
         party.sendPartyMessage(new TextComponent(Constants.LINE));
-        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &einvito a &6%s&e a la party! Tiene &c%s&e segundos para &eaceptar.", player.getName(), target.getName(), "60"))));
+        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a &6%s&e a la party! Tiene &c%s&e segundos para &eaceptar.", player.getName(), target.getName(), "60"))));
         party.sendPartyMessage(new TextComponent(Constants.LINE));
     }
 

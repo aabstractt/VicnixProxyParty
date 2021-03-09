@@ -54,7 +54,7 @@ public class PartySendInviteListener implements Listener {
 
             player.sendMessage(text);
 
-            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de &d%s &eha expirado!", inviter.getName()))));
+            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de &a%s &eha expirado!", inviter.getName()))));
 
             player.sendMessage(text);
 

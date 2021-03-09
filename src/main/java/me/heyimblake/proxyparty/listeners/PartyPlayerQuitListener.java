@@ -19,7 +19,7 @@ public class PartyPlayerQuitListener implements Listener {
         ProxiedPlayer quitter = event.getWhoQuit();
 
         party.sendPartyMessage(new TextComponent(Constants.LINE));
-        party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&d%s &ese ha salido de la party.", quitter.getName())));
+        party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &ese ha salido de la party.", quitter.getName())));
         party.sendPartyMessage(new TextComponent(Constants.LINE));
 
         ProxyParty.getInstance().getMongo().updateParty(event.getParty());
