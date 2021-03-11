@@ -18,9 +18,9 @@ public class PlayerServerSwitchListener implements Listener {
     public void onPlayerServerSwitch(ServerSwitchEvent event) {
         ProxiedPlayer player = event.getPlayer();
 
-        if (!PartyManager.getInstance().hasParty(player)) return;
-
         Party party = PartyManager.getInstance().getPartyOf(player);
+
+        if (party == null) return;
 
         if (PartyRole.getRoleOf(player) == PartyRole.LEADER) {
             party.warpParticipants(player.getServer().getInfo());

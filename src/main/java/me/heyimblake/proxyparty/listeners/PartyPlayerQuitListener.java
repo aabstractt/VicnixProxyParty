@@ -13,15 +13,15 @@ import net.md_5.bungee.event.EventHandler;
 public class PartyPlayerQuitListener implements Listener {
 
     @EventHandler
-    public void onPartyPlayerQuit(PartyPlayerQuitEvent event) {
-        Party party = event.getParty();
+    public void onPartyPlayerQuit(PartyPlayerQuitEvent ev) {
+        Party party = ev.getParty();
 
-        ProxiedPlayer quitter = event.getWhoQuit();
+        ProxiedPlayer quitter = ev.getWhoQuit();
 
         party.sendPartyMessage(new TextComponent(Constants.LINE));
         party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &ese ha salido de la party.", quitter.getName())));
         party.sendPartyMessage(new TextComponent(Constants.LINE));
 
-        ProxyParty.getInstance().getMongo().updateParty(event.getParty());
+        ProxyParty.getInstance().getMongo().updateParty(party);
     }
 }

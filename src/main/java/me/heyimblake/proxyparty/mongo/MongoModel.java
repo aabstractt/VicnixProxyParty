@@ -13,14 +13,13 @@ import java.util.Random;
 
 public class MongoModel {
 
-    private MongoClient mc;
-    private Morphia morphia;
-    private Datastore datastore;
-    private PartyPlayer partyDAO;
+    private final Datastore datastore;
+    private final PartyPlayer partyDAO;
 
     public MongoModel(String uri) {
-        mc = new MongoClient(new MongoClientURI(uri));
-        morphia = new Morphia();
+        MongoClient mc = new MongoClient(new MongoClientURI(uri));
+
+        Morphia morphia = new Morphia();
         morphia.map(PartyReply.class);
 
         datastore = morphia.createDatastore(mc, "VicnixCore");

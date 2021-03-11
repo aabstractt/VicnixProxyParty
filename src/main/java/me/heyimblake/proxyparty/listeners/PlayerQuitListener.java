@@ -12,12 +12,12 @@ import net.md_5.bungee.event.EventHandler;
 public class PlayerQuitListener implements Listener {
 
     @EventHandler
-    public void onPlayerQuit(PlayerDisconnectEvent event) {
-        ProxiedPlayer player = event.getPlayer();
-
-        if (!PartyManager.getInstance().hasParty(player)) return;
+    public void onPlayerQuit(PlayerDisconnectEvent ev) {
+        ProxiedPlayer player = ev.getPlayer();
 
         Party party = PartyManager.getInstance().getPartyOf(player);
+
+        if (party == null) return;
 
         if (party.getAllParticipants().size() <= 2) {
             party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");

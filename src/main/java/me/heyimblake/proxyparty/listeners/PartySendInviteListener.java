@@ -17,9 +17,9 @@ import java.util.concurrent.TimeUnit;
 public class PartySendInviteListener implements Listener {
 
     @EventHandler
-    public void onPartySendInvite(PartySendInviteEvent event) {
-        ProxiedPlayer player = event.getInvited();
-        ProxiedPlayer inviter = event.getInviter();
+    public void onPartySendInvite(PartySendInviteEvent ev) {
+        ProxiedPlayer player = ev.getInvited();
+        ProxiedPlayer inviter = ev.getInviter();
 
         TextComponent text = new TextComponent(Constants.LINE);
 

@@ -13,10 +13,10 @@ import net.md_5.bungee.event.EventPriority;
 public class PlayerChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerChat(ChatEvent event) {
-        ProxiedPlayer player = (ProxiedPlayer) event.getSender();
+    public void onPlayerChat(ChatEvent ev) {
+        ProxiedPlayer player = (ProxiedPlayer) ev.getSender();
 
-        if (event.isCommand() || event.isCancelled()) return;
+        if (ev.isCommand() || ev.isCancelled()) return;
 
         Party party = PartyManager.getInstance().getPartyOf(player);
 
@@ -28,14 +28,16 @@ public class PlayerChatListener implements Listener {
             return;
         }
 
-        if (event.getMessage().substring(0, 1).equalsIgnoreCase("!")) {
-            event.setMessage(event.getMessage().substring(1));
+        String message = ev.getMessage();
+
+        if (message.substring(0, 1).equalsIgnoreCase("!")) {
+            ev.setMessage(message.substring(1));
 
             return;
         }
 
-        event.setCancelled(true);
+        ev.setCancelled(true);
 
-        party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", player.getName(), event.getMessage())));
+        party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", player.getName(), message)));
     }
 }

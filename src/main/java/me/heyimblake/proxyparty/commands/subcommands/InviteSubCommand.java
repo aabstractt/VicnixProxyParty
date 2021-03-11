@@ -30,11 +30,11 @@ public class InviteSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         ProxiedPlayer target = ProxyParty.getInstance().getProxy().getPlayer(args[0]);
 
-        /*if (target == null || target.getUniqueId() == player.getUniqueId()) {
+        if (target == null || target.getUniqueId() == player.getUniqueId()) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
-        }*/
+        }
 
         if(target.getServer().getInfo().getName().contains("Auth")){
             player.sendMessage(ChatColor.RED + "El jugador no ha iniciado sesión no puedes invitarlo.");

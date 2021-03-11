@@ -8,7 +8,7 @@ import net.md_5.bungee.event.EventHandler;
 public class PartyCreateListener implements Listener {
 
     @EventHandler
-    public void onPartyCreate(PartyCreateEvent event) {
-        ProxyParty.getInstance().getMongo().createParty(event.getParty());
+    public void onPartyCreate(PartyCreateEvent ev) {
+        ProxyParty.getInstance().getMongo().createParty(ev.getParty());
     }
 }

@@ -8,10 +8,6 @@
 # Default: -1
 maxPartySize: '-1'
 
-permissions-partys:
- - "hero"
- - "titan"
-
 permissions-party-size:
  hero-party: 5
  titan-party: 7

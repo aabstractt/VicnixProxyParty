@@ -46,10 +46,11 @@ public final class ProxyParty extends Plugin {
         getProxy().getPluginManager().registerListener(this, new PartyPlayerQuitListener());
         getProxy().getPluginManager().registerListener(this, new PartyDisbandListener());
         getProxy().getPluginManager().registerListener(this, new PartyKickListener());
+        getProxy().getPluginManager().registerListener(this, new ServerKickListener());
     }
 
     public ConfigManager getConfigManager() {
-        return configManager;
+        return this.configManager;
     }
 
     public MongoModel getMongo() {

@@ -1,10 +1,12 @@
 package me.heyimblake.proxyparty.partyutils;
 
+import com.jaimemartz.playerbalancer.helper.PlayerLocker;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.events.*;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -12,6 +14,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Party {
 
@@ -234,7 +237,13 @@ public class Party {
      * @param serverInfo the server to send the participants to
      */
     public void warpParticipants(ServerInfo serverInfo) {
-        this.participants.forEach(participant -> participant.connect(serverInfo));
+        this.participants.forEach(participant -> {
+            PlayerLocker.lock(participant);
+
+            participant.connect(serverInfo);
+        });
+
+        ProxyServer.getInstance().getScheduler().schedule(ProxyParty.getInstance(), () -> participants.forEach(PlayerLocker::unlock), 5L, TimeUnit.SECONDS);
     }
 
     /**
@@ -270,7 +279,7 @@ public class Party {
         getAllParticipants().forEach(proxiedPlayer -> proxiedPlayer.sendMessage(string));
     }
 
-    public void sendPartyMessage(TextComponent message) {
+    public void sendPartyMessage(BaseComponent message) {
         getAllParticipants().forEach(proxiedPlayer -> proxiedPlayer.sendMessage(message));
     }
 

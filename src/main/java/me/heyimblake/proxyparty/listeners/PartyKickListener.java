@@ -12,11 +12,11 @@ import net.md_5.bungee.event.EventHandler;
 public class PartyKickListener implements Listener {
 
     @EventHandler
-    public void onPartyKick(PartyKickEvent event) {
-        ProxiedPlayer player = event.getKickedPlayer();
+    public void onPartyKick(PartyKickEvent ev) {
+        ProxiedPlayer player = ev.getKickedPlayer();
 
         player.sendMessage(Constants.TAG, new ComponentBuilder("Fuiste kickeado de la party!").color(ChatColor.RED).bold(true).create()[0]);
 
-        ProxyParty.getInstance().getMongo().updateParty(event.getParty());
+        ProxyParty.getInstance().getMongo().updateParty(ev.getParty());
     }
 }
