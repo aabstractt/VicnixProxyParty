@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.partyutils.Party;
+import net.md_5.bungee.api.ProxyServer;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.query.Query;
@@ -29,7 +30,7 @@ public class MongoModel {
     }
 
     public void createParty(Party party){
-        ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             PartyReply reply = new PartyReply();
             reply.setId(new Random().nextInt(Integer.MAX_VALUE));
             reply.setLeader(party.getLeader().getName());
@@ -40,7 +41,7 @@ public class MongoModel {
     }
 
     public void updateParty(Party party){
-        ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             Query<PartyReply> query = datastore.createQuery(PartyReply.class).field("leader").contains(party.getLeader().getName());
 
             UpdateOperations<PartyReply> modified = datastore.createUpdateOperations(PartyReply.class)
@@ -52,7 +53,7 @@ public class MongoModel {
     }
 
     public void disbandParty(Party party){
-        ProxyParty.getInstance().getProxy().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             String leader = party.getLeader().getName();
 
             PartyReply reply = partyDAO.findOne("leader", leader);

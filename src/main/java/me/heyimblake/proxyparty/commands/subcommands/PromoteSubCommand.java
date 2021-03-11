@@ -11,6 +11,10 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @PartyAnnotationCommand(
         name = "promote",
         syntax = "/party promote <Jugador>",
@@ -41,5 +45,38 @@ public class PromoteSubCommand extends PartySubCommand {
         }
 
         party.setLeader(target);
+    }
+
+    @Override
+    public List<String> getComplete(ProxiedPlayer player, String[] args) {
+        List<String> complete = new ArrayList<>();
+
+        Party party = PartyManager.getInstance().getPartyOf(player);
+
+        if (party == null) {
+            return complete;
+        }
+
+        String name = args[0];
+
+        int lastSpaceIndex = name.lastIndexOf(' ');
+
+        if (lastSpaceIndex >= 0) {
+            name = name.substring(lastSpaceIndex + 1);
+        }
+
+        for (ProxiedPlayer proxiedPlayer : party.getParticipants()) {
+            if (!proxiedPlayer.getName().toLowerCase().startsWith(name.toLowerCase())) {
+                continue;
+            }
+
+            if (complete.contains(proxiedPlayer.getName())) continue;
+
+            complete.add(proxiedPlayer.getName());
+        }
+
+        Collections.sort(complete);
+
+        return complete;
     }
 }

@@ -45,7 +45,7 @@ public class DenySubCommand extends PartySubCommand {
 
         party.sendPartyMessage(ChatColor.AQUA + player.getName() + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
 
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyDenyInviteEvent(party, player));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyDenyInviteEvent(party, player));
 
         player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Has declinado la invitacion de la party de %s!.", target.getName())).color(ChatColor.GREEN).create()[0]);
     }

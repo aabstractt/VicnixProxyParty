@@ -13,6 +13,10 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @PartyAnnotationCommand(
         name = "aceptar",
         syntax = "/party aceptar <Jugador>",
@@ -54,11 +58,42 @@ public class AcceptSubCommand extends PartySubCommand {
             party.sendPartyMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " se ha unido a la party!");
             party.sendPartyMessage(new TextComponent(Constants.LINE));
 
-            ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyAcceptInviteEvent(party, player));
+            ProxyServer.getInstance().getPluginManager().callEvent(new PartyAcceptInviteEvent(party, player));
 
             return;
         }
 
         player.sendMessage(Constants.TAG, new ComponentBuilder("No tienes invitaciones para unirte a esta party!").color(ChatColor.RED).create()[0]);
+    }
+
+    @Override
+    public List<String> getComplete(ProxiedPlayer player, String[] args) {
+        List<String> complete = new ArrayList<>();
+
+        String name = args[0];
+
+        int lastSpaceIndex = name.lastIndexOf(' ');
+
+        if (lastSpaceIndex >= 0) {
+            name = name.substring(lastSpaceIndex + 1);
+        }
+
+        for (Party party : PartyManager.getInstance().getActiveParties()) {
+            if (!party.getInvited().contains(player)) continue;
+
+            ProxiedPlayer leader = party.getLeader();
+
+            if (leader == null) continue;
+
+            if (!leader.getName().toLowerCase().startsWith(name.toLowerCase())) continue;
+
+            if (complete.contains(leader.getName())) continue;
+
+            complete.add(leader.getName());
+        }
+
+        Collections.sort(complete);
+
+        return complete;
     }
 }

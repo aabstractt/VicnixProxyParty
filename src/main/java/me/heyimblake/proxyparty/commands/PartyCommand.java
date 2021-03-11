@@ -171,7 +171,13 @@ public class PartyCommand extends Command implements TabExecutor {
     public Iterable<String> onTabComplete(CommandSender commandSender, String[] args) {
         List<String> complete = new ArrayList<>();
 
-        if (args.length == 0) return complete;
+        if (!(commandSender instanceof ProxiedPlayer)) {
+            return complete;
+        }
+
+        if (args.length == 0) {
+            return complete;
+        }
 
         if (args.length == 1) {
             String name = args[0];
@@ -182,7 +188,7 @@ public class PartyCommand extends Command implements TabExecutor {
                 name = name.substring(lastSpaceIndex + 1);
             }
 
-            Set<String> commands = this.commands.keySet();
+            List<String> commands = new ArrayList<>(this.commands.keySet());
 
             commands.addAll(this.commandsAlias.keySet());
 
@@ -205,6 +211,6 @@ public class PartyCommand extends Command implements TabExecutor {
 
         if (command == null) return complete;
 
-        return command.getComplete(Arrays.copyOfRange(args, 1, args.length));
+        return command.getComplete((ProxiedPlayer) commandSender, Arrays.copyOfRange(args, 1, args.length));
     }
 }

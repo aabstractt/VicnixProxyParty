@@ -1,15 +1,19 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
-import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.commands.*;
+import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
+import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyCreator;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
+import me.heyimblake.proxyparty.utils.CommandConditions;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.ArrayList;
@@ -28,9 +32,11 @@ public class InviteSubCommand extends PartySubCommand {
     @Override
     @SuppressWarnings("deprecation")
     public void execute(ProxiedPlayer player, String[] args) {
-        ProxiedPlayer target = ProxyParty.getInstance().getProxy().getPlayer(args[0]);
+        ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
 
-        if (target == null || target.getUniqueId() == player.getUniqueId()) {
+        if (CommandConditions.checkTargetOnline(target, player)) return;
+
+        if (target.getName().equalsIgnoreCase(player.getName())) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
@@ -73,7 +79,7 @@ public class InviteSubCommand extends PartySubCommand {
     }
 
     @Override
-    public List<String> getComplete(String[] args) {
+    public List<String> getComplete(ProxiedPlayer player, String[] args) {
         List<String> complete = new ArrayList<>();
 
         String name = args[0];
@@ -84,14 +90,14 @@ public class InviteSubCommand extends PartySubCommand {
             name = name.substring(lastSpaceIndex + 1);
         }
 
-        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-            if (!player.getName().toLowerCase().startsWith(name.toLowerCase())) {
+        for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
+            if (!proxiedPlayer.getName().toLowerCase().startsWith(name.toLowerCase())) {
                 continue;
             }
 
-            if (complete.contains(player.getName())) continue;
+            if (complete.contains(proxiedPlayer.getName())) continue;
 
-            complete.add(player.getName());
+            complete.add(proxiedPlayer.getName());
         }
 
         Collections.sort(complete);

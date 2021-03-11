@@ -53,7 +53,7 @@ public class Party {
 
         PartyManager.getInstance().getActiveParties().add(this);
 
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyCreateEvent(this));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyCreateEvent(this));
     }
 
     /**
@@ -106,7 +106,7 @@ public class Party {
      * @param player the new party leader
      */
     public void setLeader(ProxiedPlayer player) {
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyPromoteEvent(this, player, this.leader));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPromoteEvent(this, player, this.leader));
 
         ProxyParty.getInstance().getMongo().disbandParty(this);
 
@@ -186,7 +186,7 @@ public class Party {
         PartyManager.getInstance().getPlayerPartyMap().remove(player);
         PartyRole.removeRoleFrom(player);
 
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyPlayerQuitEvent(this, player));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPlayerQuitEvent(this, player));
     }
 
     /**
@@ -206,7 +206,7 @@ public class Party {
                             String.format("Tu party ha alcanzado el máximo de jugadores (%s).", this.getMax())).color(ChatColor.RED).create()[0]);
         }
 
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyPlayerJoinEvent(this, player));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPlayerJoinEvent(this, player));
     }
 
     /**
@@ -217,7 +217,7 @@ public class Party {
     public void invitePlayer(ProxiedPlayer player) {
         this.invited.add(player);
 
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartySendInviteEvent(this, player));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartySendInviteEvent(this, player));
     }
 
     /**
@@ -228,7 +228,7 @@ public class Party {
     public void retractInvite(ProxiedPlayer player) {
         this.invited.remove(player);
 
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyRetractInviteEvent(this, player));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyRetractInviteEvent(this, player));
     }
 
     /**
@@ -291,7 +291,7 @@ public class Party {
     }
 
     public void disband(String message) {
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyDisbandEvent(this));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyDisbandEvent(this));
 
         this.sendPartyMessage(new TextComponent(Constants.LINE));
         this.sendPartyMessage(new TextComponent(message));

@@ -22,38 +22,10 @@ public class PlayerServerSwitchListener implements Listener {
 
         if (party == null) return;
 
-        if (PartyRole.getRoleOf(player) == PartyRole.LEADER) {
-            party.warpParticipants(player.getServer().getInfo());
+        if (PartyRole.getRoleOf(player) != PartyRole.LEADER) return;
 
-            party.getLeader().sendMessage(Constants.TAG, new ComponentBuilder(
-                    "Los jugadores de tu party se estan moviendo a tu servidor.").color(ChatColor.LIGHT_PURPLE).create()[0]);
-            return;
-        }
-//        if (!player.getServer().getInfo().getName().equalsIgnoreCase(leader.getServer().getInfo().getName())) {
-//
-//
-//            player.sendMessage(Constants.TAG, new ComponentBuilder("Solo los lideres puede moverse a los servidores.!").
-//                    color(ChatColor.RED).bold(true).create()[0]);
+        party.warpParticipants(player.getServer().getInfo());
+
+        party.getLeader().sendMessage(Constants.TAG, new ComponentBuilder("Los jugadores de tu party se estan moviendo a tu servidor.").color(ChatColor.LIGHT_PURPLE).create()[0]);
     }
-    /**
-     *
-     ProxiedPlayer player = event.getPlayer();
-     if (!PartyManager.getInstance().hasParty(player))
-     return;
-     Party party = PartyManager.getInstance().getPartyOf(player);
-     ProxiedPlayer leader = party.getLeader();
-     if (PartyRole.getRoleOf(player) == PartyRole.LEADER) {
-     party.warpParticipants(player.getServer().getInfo());
-     party.getLeader().sendMessage(Constants.TAG, new ComponentBuilder(
-     "Los jugadores de tu party se estan moviendo a tu servidor.").color(ChatColor.AQUA).create()[0]);
-     return;
-     }
-     if (!player.getServer().getInfo().getName().equalsIgnoreCase(leader.getServer().getInfo().getName())) {
-
-
-     player.sendMessage(Constants.TAG, new ComponentBuilder("Solo los lideres puede moverse a los servidores.!").
-     color(ChatColor.RED).bold(true).create()[0]);
-
-     }
-     */
 }

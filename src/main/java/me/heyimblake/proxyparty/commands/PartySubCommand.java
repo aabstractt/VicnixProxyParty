@@ -22,7 +22,7 @@ public abstract class PartySubCommand {
         return null;
     }
 
-    public List<String> getComplete(String[] args) {
+    public List<String> getComplete(ProxiedPlayer player, String[] args) {
         return new ArrayList<>();
     }
 }

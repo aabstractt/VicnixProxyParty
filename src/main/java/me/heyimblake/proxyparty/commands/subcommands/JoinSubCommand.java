@@ -12,6 +12,10 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @PartyAnnotationCommand(
         name = "entrar",
         syntax = "/party entrar <Jugador>",
@@ -59,6 +63,37 @@ public class JoinSubCommand extends PartySubCommand {
 
         player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Has ingresado a la %s's Party!!", target.getName())).color(ChatColor.GREEN).create()[0]);
 
-        ProxyParty.getInstance().getProxy().getPluginManager().callEvent(new PartyAcceptInviteEvent(party, player));
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyAcceptInviteEvent(party, player));
+    }
+
+    @Override
+    public List<String> getComplete(ProxiedPlayer player, String[] args) {
+        List<String> complete = new ArrayList<>();
+
+        String name = args[0];
+
+        int lastSpaceIndex = name.lastIndexOf(' ');
+
+        if (lastSpaceIndex >= 0) {
+            name = name.substring(lastSpaceIndex + 1);
+        }
+
+        for (Party party : PartyManager.getInstance().getActiveParties()) {
+            if (!party.isPartyPublic()) continue;
+
+            ProxiedPlayer leader = party.getLeader();
+
+            if (leader == null) continue;
+
+            if (!leader.getName().toLowerCase().startsWith(name.toLowerCase())) continue;
+
+            if (complete.contains(leader.getName())) continue;
+
+            complete.add(leader.getName());
+        }
+
+        Collections.sort(complete);
+
+        return complete;
     }
 }

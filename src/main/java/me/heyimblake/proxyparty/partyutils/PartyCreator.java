@@ -47,6 +47,7 @@ public class PartyCreator {
      */
     public PartyCreator setParticipants(Set<ProxiedPlayer> participants) {
         this.participants = participants;
+        
         return this;
     }
 
