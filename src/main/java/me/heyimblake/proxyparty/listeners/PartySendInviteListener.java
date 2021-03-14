@@ -36,7 +36,7 @@ public class PartySendInviteListener implements Listener {
         player.sendMessage(new TextComponent(" "));
         player.sendMessage(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create()[0]);
         player.sendMessage(new ComponentBuilder(String.format("%s te ha invitado a unirte a su party!",
-                inviter.getName())).color(ChatColor.YELLOW).create()[0]);
+                ProxyParty.getInstance().translatePrefix(inviter))).color(ChatColor.YELLOW).create()[0]);
         player.sendMessage(new TextComponent(" "));
         player.sendMessage(clickMessages[0], clickMessages[1], clickMessages[2]);
         player.sendMessage(new TextComponent(" "));
@@ -54,7 +54,7 @@ public class PartySendInviteListener implements Listener {
 
             player.sendMessage(text);
 
-            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de &a%s &eha expirado!", inviter.getName()))));
+            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de %s &eha expirado!", ProxyParty.getInstance().translatePrefix(inviter)))));
 
             player.sendMessage(text);
 

@@ -55,7 +55,7 @@ public class AcceptSubCommand extends PartySubCommand {
             party.getInvited().remove(player);
 
             party.sendPartyMessage(new TextComponent(Constants.LINE));
-            party.sendPartyMessage(ChatColor.LIGHT_PURPLE + player.getName() + ChatColor.GREEN + " se ha unido a la party!");
+            party.sendPartyMessage(ProxyParty.getInstance().translatePrefix(player) + ChatColor.GREEN + " se ha unido a la party!");
             party.sendPartyMessage(new TextComponent(Constants.LINE));
 
             ProxyServer.getInstance().getPluginManager().callEvent(new PartyAcceptInviteEvent(party, player));

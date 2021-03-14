@@ -1,5 +1,6 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.utils.CommandConditions;
@@ -32,6 +33,6 @@ public class FindSubCommand extends PartySubCommand {
 
         ServerInfo serverInfo = target.getServer().getInfo();
 
-        player.sendMessage(ChatColor.AQUA+target.getName()+ ChatColor.GREEN+" esta jugando en "+ChatColor.AQUA+serverInfo.getName()+".");
+        player.sendMessage(ProxyParty.getInstance().translatePrefix(target) + ChatColor.GREEN + " esta jugando en "+ChatColor.AQUA+serverInfo.getName()+".");
     }
 }

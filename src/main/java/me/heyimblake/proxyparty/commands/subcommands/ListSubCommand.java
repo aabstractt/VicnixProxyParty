@@ -1,5 +1,6 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
@@ -41,7 +42,7 @@ public class ListSubCommand extends PartySubCommand {
             String allParticipants = "";
 
             for (ProxiedPlayer participant : party.getParticipants()) {
-                allParticipants = allParticipants + ChatColor.GREEN+ participant.getName() + ChatColor.GRAY+ ", ";
+                allParticipants = allParticipants + ChatColor.GREEN + ProxyParty.getInstance().translatePrefix(participant) + ChatColor.GRAY+ ", ";
             }
 
             player.sendMessage(Constants.TAG, line1);

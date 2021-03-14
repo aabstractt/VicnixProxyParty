@@ -1,7 +1,8 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
 import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.commands.*;
+import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
+import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.events.PartyDenyInviteEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
@@ -43,10 +44,10 @@ public class DenySubCommand extends PartySubCommand {
 
         party.getInvited().remove(player);
 
-        party.sendPartyMessage(ChatColor.AQUA + player.getName() + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
+        party.sendPartyMessage(ProxyParty.getInstance().translatePrefix(player) + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
 
         ProxyServer.getInstance().getPluginManager().callEvent(new PartyDenyInviteEvent(party, player));
 
-        player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Has declinado la invitacion de la party de %s!.", target.getName())).color(ChatColor.GREEN).create()[0]);
+        player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Has declinado la invitacion de la party de %s!.", ProxyParty.getInstance().translatePrefix(target))).color(ChatColor.GREEN).create()[0]);
     }
 }

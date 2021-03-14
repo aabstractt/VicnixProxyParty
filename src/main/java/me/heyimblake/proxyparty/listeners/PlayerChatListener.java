@@ -1,7 +1,9 @@
 package me.heyimblake.proxyparty.listeners;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.partyutils.PartyPermission;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -38,6 +40,6 @@ public class PlayerChatListener implements Listener {
 
         ev.setCancelled(true);
 
-        party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", player.getName(), message)));
+        party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.getInstance().translatePrefix(player), message)));
     }
 }

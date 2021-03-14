@@ -1,5 +1,6 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.partyutils.Party;
@@ -36,11 +37,11 @@ public class InviteSubCommand extends PartySubCommand {
 
         if (CommandConditions.checkTargetOnline(target, player)) return;
 
-        if (target.getName().equalsIgnoreCase(player.getName())) {
+        /*if (target.getName().equalsIgnoreCase(player.getName())) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
-        }
+        }*/
 
         if(target.getServer().getInfo().getName().contains("Auth")){
             player.sendMessage(ChatColor.RED + "El jugador no ha iniciado sesión no puedes invitarlo.");
@@ -74,7 +75,7 @@ public class InviteSubCommand extends PartySubCommand {
         party.invitePlayer(target);
 
         party.sendPartyMessage(new TextComponent(Constants.LINE));
-        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a &6%s&e a la party! Tiene &c%s&e segundos para &eaceptar.", player.getName(), target.getName(), "60"))));
+        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a %s &ea la party! Tiene &c%s &esegundos para &eaceptar.", ProxyParty.getInstance().translatePrefix(player), ProxyParty.getInstance().translatePrefix(target), "60"))));
         party.sendPartyMessage(new TextComponent(Constants.LINE));
     }
 

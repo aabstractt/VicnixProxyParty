@@ -11,7 +11,6 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.config.Configuration;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -67,23 +66,17 @@ public class Party {
 
 
     public Integer getMax() {
-        Integer maxPerParty = ProxyParty.getInstance().getConfigManager().getInt("default-party-size");
-
         if (this.leader == null) {
-            return maxPerParty;
+            return 3;
         }
 
-        Configuration config = (Configuration) ProxyParty.getInstance().getConfigManager().getConfiguration().get("permissions-party-size");
-
-        for (String permission : config.getKeys()) {
-            if (!this.leader.hasPermission(permission)) continue;
-
-            if (maxPerParty > config.getInt(permission)) continue;
-
-            maxPerParty = config.getInt(permission);
+        try {
+            return ProxyParty.getInstance().getPartyPermissions(this.leader).getSize();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        return maxPerParty;
+        return 3;
     }
 
     public void setLeader() throws Exception {
@@ -117,7 +110,7 @@ public class Party {
         }
 
         this.sendPartyMessage(new TextComponent(Constants.LINE));
-        this.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a &6%s&e por &a%s", player.getName(), leader.getName()))));
+        this.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a %s&e por %s", ProxyParty.getInstance().translatePrefix(player), ProxyParty.getInstance().translatePrefix(leader)))));
         this.sendPartyMessage(new TextComponent(Constants.LINE));
 
         this.leader = player;
@@ -181,12 +174,12 @@ public class Party {
      * @param player the player to be removed
      */
     public void removeParticipant(ProxiedPlayer player) {
+        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPlayerQuitEvent(this, player));
+		
         this.participants.remove(player);
 
         PartyManager.getInstance().getPlayerPartyMap().remove(player);
         PartyRole.removeRoleFrom(player);
-
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPlayerQuitEvent(this, player));
     }
 
     /**
@@ -287,7 +280,7 @@ public class Party {
      * Disbands the current party instance.
      */
     public void disband() {
-        this.disband(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &eha borrado la party!", this.leader.getName())));
+        this.disband(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &eha borrado la party!", ProxyParty.getInstance().translatePrefix(this.leader))));
     }
 
     public void disband(String message) {

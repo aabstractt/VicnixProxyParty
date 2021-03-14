@@ -1,5 +1,6 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
@@ -28,7 +29,7 @@ public class InvitedSubCommand extends PartySubCommand {
             List<BaseComponent> names = new ArrayList<>();
 
             for (ProxiedPlayer invited : party.getInvited()) {
-                TextComponent textComponent = new TextComponent(invited.getName());
+                TextComponent textComponent = new TextComponent(ProxyParty.getInstance().translatePrefix(invited));
 
                 textComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party removerinvitacion " + invited.getName()));
                 textComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.YELLOW + "Click para remover invitacion de "+ ChatColor.GREEN + invited.getName() + ".")}));

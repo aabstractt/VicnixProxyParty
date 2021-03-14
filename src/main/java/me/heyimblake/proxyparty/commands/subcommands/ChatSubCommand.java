@@ -1,5 +1,6 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
@@ -39,6 +40,6 @@ public class ChatSubCommand extends PartySubCommand {
 
         Arrays.stream(args).forEach(string -> message[0] += string + " ");
 
-        PartyManager.getInstance().getPartyOf(player).sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", player.getName(), message[0])));
+        PartyManager.getInstance().getPartyOf(player).sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.getInstance().translatePrefix(player), message[0])));
     }
 }
