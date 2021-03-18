@@ -80,9 +80,9 @@ public final class ProxyParty extends Plugin {
 
             if (!player.hasPermission(partyPermission.getName())) continue;
 
-            if (betterPartyPermissions.getSize() > partyPermission.getSize()) continue;
-
-            betterPartyPermissions = partyPermission;
+            if (partyPermission.getSize() >= betterPartyPermissions.getSize()) {
+                betterPartyPermissions = partyPermission;
+            }
         }
 
         return betterPartyPermissions;

@@ -37,11 +37,11 @@ public class InviteSubCommand extends PartySubCommand {
 
         if (CommandConditions.checkTargetOnline(target, player)) return;
 
-        /*if (target.getName().equalsIgnoreCase(player.getName())) {
+        if (target.getName().equalsIgnoreCase(player.getName())) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
-        }*/
+        }
 
         if(target.getServer().getInfo().getName().contains("Auth")){
             player.sendMessage(ChatColor.RED + "El jugador no ha iniciado sesión no puedes invitarlo.");

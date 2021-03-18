@@ -25,20 +25,18 @@ public class PartySendInviteListener implements Listener {
 
         player.sendMessage(text);
 
-        BaseComponent[] clickMessages = new ComponentBuilder("[ACEPTAR]").color(ChatColor.GREEN).bold(true)
+        player.sendMessage(new TextComponent(" "));
+        player.sendMessage(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create());
+        player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("%s &ete ha invitado a unirte a su party!", ProxyParty.getInstance().translatePrefix(inviter)))));
+
+        player.sendMessage(new TextComponent(" "));
+        player.sendMessage(new ComponentBuilder("[ACEPTAR]").color(ChatColor.GREEN).bold(true)
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party aceptar " + inviter.getName()))
                 .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para aceptar la invitacion!")}))
                 .append(" - ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.GRAY)
                 .append("[RECHAZAR]").color(ChatColor.RED).bold(true)
                 .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party rechazar " + inviter.getName()))
-                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para rechazar la invitacion")})).create();
-
-        player.sendMessage(new TextComponent(" "));
-        player.sendMessage(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create()[0]);
-        player.sendMessage(new ComponentBuilder(String.format("%s te ha invitado a unirte a su party!",
-                ProxyParty.getInstance().translatePrefix(inviter))).color(ChatColor.YELLOW).create()[0]);
-        player.sendMessage(new TextComponent(" "));
-        player.sendMessage(clickMessages[0], clickMessages[1], clickMessages[2]);
+                .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para rechazar la invitacion")})).create());
         player.sendMessage(new TextComponent(" "));
 
         player.sendMessage(text);
