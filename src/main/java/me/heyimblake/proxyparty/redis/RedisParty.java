@@ -14,6 +14,7 @@ public class RedisParty {
     private String leader;
     private Set<String> members;
     private Set<String> invited;
+    private boolean partyPublic;
     private int maxMembers;
 
     public void sendPartyMessage(String message) {

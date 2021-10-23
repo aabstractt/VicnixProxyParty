@@ -4,7 +4,6 @@ import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
-import me.heyimblake.proxyparty.events.PartySendInviteEvent;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
@@ -60,9 +59,9 @@ public class InviteSubCommand extends PartySubCommand {
 
         RedisProvider.getInstance().addPartyInvite(party.getUniqueId(), targetUniqueId);
 
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartySendInviteEvent(party.getUniqueId(), targetUniqueId));
-
         party.sendPartyMessage("PLAYER_INVITED%" + targetUniqueId);
+
+        RedisProvider.getInstance().sendPlayerMessage(targetUniqueId, "PARTY_INVITATION_RECEIVED%" + party.getUniqueId());
     }
 
     @Override

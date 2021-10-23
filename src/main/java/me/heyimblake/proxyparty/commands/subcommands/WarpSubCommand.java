@@ -2,30 +2,29 @@ package me.heyimblake.proxyparty.commands.subcommands;
 
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
-import me.heyimblake.proxyparty.events.PartyWarpEvent;
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-@PartyAnnotationCommand(
-        name = "warp",
-        syntax = "/party warp",
-        description = "Envia todos los jugadores a tu servidor..",
-        requiresArgumentCompletion = false,
-        leaderExclusive = true
-)
+@PartyAnnotationCommand(name = "warp", syntax = "/party warp", description = "Envia todos los jugadores a tu servidor..", requiresArgumentCompletion = false, leaderExclusive = true)
 public class WarpSubCommand extends PartySubCommand {
 
     @Override
-    public void execute(ProxiedPlayer player, String[] args)  {
-        Party party = PartyManager.getInstance().getPartyOf(player);
+    public void execute(ProxiedPlayer player, String[] args) {
+        RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
-        party.warpParticipants(player.getServer().getInfo());
+        if (party == null) {
+            return;
+        }
 
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyWarpEvent(party));
+        if (!party.getLeader().equals(player.getUniqueId().toString())) {
+            return;
+        }
 
-        party.sendMessage("El lider de la party los ha movido a este servidor!", ChatColor.AQUA);
+        RedisProvider.getRedisTransactions().runTransaction(jedis -> {
+            jedis.publish("REDIS_PARTIES_CHANNEL", "BUNGEE%CONNECT%" + party.getUniqueId() + "%" + player.getServer().getInfo().getName());
+        });
+
+        party.sendPartyMessage("PARTY_WARP");
     }
 }

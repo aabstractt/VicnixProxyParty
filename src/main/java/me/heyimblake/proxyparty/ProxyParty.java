@@ -68,12 +68,6 @@ public final class ProxyParty extends Plugin {
         getProxy().getPluginManager().registerListener(this, new PlayerChatListener());
         getProxy().getPluginManager().registerListener(this, new PlayerQuitListener());
         getProxy().getPluginManager().registerListener(this, new PlayerServerSwitchListener());
-        getProxy().getPluginManager().registerListener(this, new PartySendInviteListener());
-        getProxy().getPluginManager().registerListener(this, new PartyCreateListener());
-        getProxy().getPluginManager().registerListener(this, new PartyPlayerJoinListener());
-        getProxy().getPluginManager().registerListener(this, new PartyPlayerQuitListener());
-        getProxy().getPluginManager().registerListener(this, new PartyDisbandListener());
-        getProxy().getPluginManager().registerListener(this, new PartyKickListener());
         getProxy().getPluginManager().registerListener(this, new ServerKickListener());
     }
 

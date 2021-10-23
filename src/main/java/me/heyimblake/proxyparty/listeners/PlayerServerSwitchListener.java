@@ -1,10 +1,10 @@
 package me.heyimblake.proxyparty.listeners;
 
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.partyutils.PartyRole;
-import me.heyimblake.proxyparty.utils.Constants;
+import me.heyimblake.proxyparty.ProxyParty;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -18,14 +18,22 @@ public class PlayerServerSwitchListener implements Listener {
     public void onPlayerServerSwitch(ServerSwitchEvent event) {
         ProxiedPlayer player = event.getPlayer();
 
-        Party party = PartyManager.getInstance().getPartyOf(player);
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
+            RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
-        if (party == null) return;
+            if (party == null) {
+                return;
+            }
 
-        if (PartyRole.getRoleOf(player) != PartyRole.LEADER) return;
+            if (!party.getLeader().equals(player.getUniqueId().toString())) {
+                return;
+            }
 
-        party.warpParticipants(player.getServer().getInfo());
+            RedisProvider.getRedisTransactions().runTransaction(jedis -> {
+                jedis.publish("REDIS_PARTIES_CHANNEL", "BUNGEE%CONNECT%" + party.getUniqueId() + "%" + player.getServer().getInfo().getName());
 
-        party.getLeader().sendMessage(Constants.TAG, new ComponentBuilder("Los jugadores de tu party se estan moviendo a tu servidor.").color(ChatColor.LIGHT_PURPLE).create()[0]);
+                player.sendMessage(new ComponentBuilder("Los jugadores de tu party se estan moviendo a tu servidor.").color(ChatColor.LIGHT_PURPLE).create());
+            });
+        });
     }
 }

@@ -9,7 +9,6 @@ import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -29,11 +28,11 @@ public class AcceptSubCommand extends PartySubCommand {
             return;
         }
 
-            /*if (RedisProvider.getInstance().getParty(player.getUniqueId()) != null) {
-                player.sendMessage(Constants.TAG, new ComponentBuilder("Ya te encuentras en una party!").color(ChatColor.RED).create()[0]);
+        /*if (RedisProvider.getInstance().getParty(player.getUniqueId()) != null) {
+            player.sendMessage(new ComponentBuilder("Ya te encuentras en una party!").color(ChatColor.RED).create());
 
-                return;
-            }*/
+            return;
+        }*/
 
         RedisParty party = RedisProvider.getInstance().getParty(targetUniqueId);
 
@@ -53,6 +52,8 @@ public class AcceptSubCommand extends PartySubCommand {
         RedisProvider.getInstance().addPartyMember(party.getUniqueId(), player.getUniqueId());
 
         party.sendPartyMessage("PLAYER_JOINED%" + player.getUniqueId().toString());
+
+        player.sendMessage(new ComponentBuilder(String.format("Has ingresado a la %s's Party!!", ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(targetUniqueId, true))).color(ChatColor.GREEN).create());
     }
 
     @Override

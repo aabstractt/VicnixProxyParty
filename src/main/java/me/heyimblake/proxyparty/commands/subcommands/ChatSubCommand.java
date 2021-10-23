@@ -1,9 +1,9 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
-import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.commands.*;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
+import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -40,6 +40,6 @@ public class ChatSubCommand extends PartySubCommand {
 
         Arrays.stream(args).forEach(string -> message[0] += string + " ");
 
-        PartyManager.getInstance().getPartyOf(player).sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.getInstance().translatePrefix(player), message[0])));
+        RedisProvider.getInstance().getParty(player.getUniqueId()).sendPartyMessage("PLAYER_CHAT%" + player.getUniqueId().toString() + "%" + message[0]);
     }
 }

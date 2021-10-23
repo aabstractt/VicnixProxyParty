@@ -4,8 +4,10 @@ import com.imaginarycode.minecraft.redisbungee.internal.jedis.Jedis;
 import com.imaginarycode.minecraft.redisbungee.internal.jedis.JedisPool;
 import com.imaginarycode.minecraft.redisbungee.internal.jedis.JedisPubSub;
 import com.imaginarycode.minecraft.redisbungee.internal.jedis.Protocol;
+import com.jaimemartz.playerbalancer.helper.PlayerLocker;
 import lombok.Getter;
 import me.heyimblake.proxyparty.ProxyParty;
+import me.heyimblake.proxyparty.partyutils.PartySetting;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
@@ -25,6 +27,7 @@ public class RedisProvider {
     public static String HASH_PARTY_MEMBERS = "party#members:%s";
     public static String HASH_PARTY_INVITED = "party#invited:%s";
     public static String HASH_PLAYER_PARTY_INVITES = "player#party#invites:%s";
+    public static String HASH_PARTY_STATUS = "party#status:%s";
     public static String HASH_PARTY_LEADER = "party#leader:%s";
 
     @Getter
@@ -72,7 +75,7 @@ public class RedisProvider {
             jedis.set(String.format(HASH_PARTY_LEADER, partyUniqueId), uniqueId.toString());
             jedis.sadd(String.format(HASH_PARTY_MEMBERS, partyUniqueId), uniqueId.toString());
 
-            return new RedisParty(partyUniqueId, uniqueId.toString(), new HashSet<>(), new HashSet<>(), -1);
+            return new RedisParty(partyUniqueId, uniqueId.toString(), new HashSet<>(), new HashSet<>(), false, -1);
         });
     }
 
@@ -82,12 +85,25 @@ public class RedisProvider {
             jedis.del(String.format(HASH_PLAYER_PARTY, uniqueId.toString()));
             jedis.del(String.format(HASH_PARTY_MEMBERS, partyUniqueId));
             jedis.del(String.format(HASH_PARTY_INVITED, partyUniqueId));
+            jedis.del(String.format(HASH_PARTY_STATUS, partyUniqueId));
         });
     }
 
     public void setPartyLeader(String partyUniqueId, UUID uniqueId) {
         redisTransactions.runTransaction(jedis -> {
             jedis.set(String.format(HASH_PARTY_LEADER, partyUniqueId), uniqueId.toString());
+        });
+    }
+
+    public void setPartyPublic(String partyUniqueId, boolean isPublic) {
+        redisTransactions.runTransaction(jedis -> {
+            jedis.set(String.format(HASH_PARTY_STATUS, partyUniqueId), isPublic ? "ENABLE" : "DISABLE");
+        });
+    }
+
+    public boolean isPartyPublic(String partyUniqueId) {
+        return redisTransactions.runTransaction(jedis -> {
+            return jedis.exists(String.format(HASH_PARTY_STATUS, partyUniqueId));
         });
     }
 
@@ -111,7 +127,7 @@ public class RedisProvider {
                 return null;
             }
 
-            return new RedisParty(partyUniqueId, leader, getPartyMembers(partyUniqueId), getPartyInvited(partyUniqueId), -1);
+            return new RedisParty(partyUniqueId, leader, getPartyMembers(partyUniqueId), getPartyInvited(partyUniqueId), isPartyPublic(partyUniqueId), -1);
         });
     }
 
@@ -123,7 +139,7 @@ public class RedisProvider {
                 return null;
             }
 
-            return new RedisParty(partyUniqueId, leader, getPartyMembers(partyUniqueId), getPartyInvited(partyUniqueId), -1);
+            return new RedisParty(partyUniqueId, leader, getPartyMembers(partyUniqueId), getPartyInvited(partyUniqueId), isPartyPublic(partyUniqueId), -1);
         });
     }
 
@@ -280,6 +296,51 @@ public class RedisProvider {
             return;
         }
 
+        if (args[0].equals("PLAYER_KICKED")) {
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                player.sendMessage(new TextComponent(Constants.LINE));
+                player.sendMessage(new ComponentBuilder("No se ha podido conectar a todos los miembros de la party al servidor actual").color(ChatColor.RED).create());
+                player.sendMessage(new TextComponent(Constants.LINE));
+            }
+
+            return;
+        }
+
+        if (args[0].equals("PARTY_WARP")) {
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                player.sendMessage(new ComponentBuilder("El lider de la party los ha movido a este servidor!").color(ChatColor.AQUA).create());
+            }
+            return;
+        }
+
+        if (args[0].equals("PLAYER_CHAT")) {
+            User user = ProxyParty.getInstance().loadUser(args[1]);
+
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.getInstance().translatePrefix(user), args[2])));
+            }
+
+            return;
+        }
+
         if (args[0].equals("PLAYER_LEAVE")) {
             User user = ProxyParty.getInstance().loadUser(args[1]);
 
@@ -311,6 +372,22 @@ public class RedisProvider {
 
                 player.sendMessage(new TextComponent(Constants.LINE));
                 player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a %s&e por %s", ProxyParty.getInstance().translatePrefix(user), ProxyParty.getInstance().translatePrefix(user0)))));
+                player.sendMessage(new TextComponent(Constants.LINE));
+            }
+
+            return;
+        }
+
+        if (args[0].equals("PARTY_STATUS_UPDATE")) {
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                player.sendMessage(new TextComponent(Constants.LINE));
+                player.sendMessage(ChatColor.GREEN + "La party ahora es " + ChatColor.GOLD + args[1]);
                 player.sendMessage(new TextComponent(Constants.LINE));
             }
         }
@@ -391,6 +468,7 @@ public class RedisProvider {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &eha borrado la party!", args[1])));
 
             player.sendMessage(new TextComponent(Constants.LINE));
+            PartySetting.PARTY_CHAT_TOGGLE_ON.disable(player);
 
             return;
         }
@@ -401,6 +479,7 @@ public class RedisProvider {
             player.sendMessage(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
 
             player.sendMessage(new TextComponent(Constants.LINE));
+            PartySetting.PARTY_CHAT_TOGGLE_ON.disable(player);
 
             return;
         }
@@ -411,6 +490,7 @@ public class RedisProvider {
             player.sendMessage(ProxyParty.getInstance().translatePrefix(UUID.fromString(args[1])) + ChatColor.RED + " te ha sacado de la party.");
 
             player.sendMessage(new TextComponent(Constants.LINE));
+            PartySetting.PARTY_CHAT_TOGGLE_ON.disable(player);
 
             return;
         }
@@ -418,6 +498,47 @@ public class RedisProvider {
         if (args[0].equals("PARTY_RETRACTED")) {
             player.sendMessage(new ComponentBuilder(String.format("%s ha removido tu invitacion de la party.", args[1])).color(ChatColor.GREEN).create());
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void handleMessage(String[] args) {
+        if (args[0].equals("UPDATE")) {
+            ProxyServer.getInstance().broadcast(new TextComponent(Constants.LINE));
+            ProxyServer.getInstance().broadcast(args[1] + ChatColor.YELLOW + " ha creado una party publica!");
+            ProxyServer.getInstance().broadcast(ChatColor.YELLOW + "Utiliza " + ChatColor.GREEN + "/party join " + ChatColor.stripColor(args[1]) + ChatColor.YELLOW + " para entrar.");
+            ProxyServer.getInstance().broadcast(new TextComponent(Constants.LINE));
+
+            return;
+        }
+
+        RedisParty party = getParty(args[1]);
+
+        if (party == null) {
+            return;
+        }
+
+        for (String uniqueId : party.getMembers()) {
+            ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+            if (player == null) {
+                continue;
+            }
+
+            PlayerLocker.lock(player);
+            player.connect(ProxyServer.getInstance().getServerInfo(args[2]));
+        }
+
+        ProxyServer.getInstance().getScheduler().schedule(ProxyParty.getInstance(), () -> {
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                PlayerLocker.unlock(player);
+            }
+        }, 5L, TimeUnit.SECONDS);
     }
 
     public class MessageListener extends JedisPubSub {
@@ -431,8 +552,10 @@ public class RedisProvider {
 
                 if (args[0].equalsIgnoreCase("PLAYER")) {
                     handlePlayerMessage(args[1], Arrays.copyOfRange(args, 2, args.length));
-                } else {
+                } else if (args[0].equals("PARTY")) {
                     handlePartyMessage(getParty(args[1]), Arrays.copyOfRange(args, 2, args.length));
+                } else {
+                    handleMessage(Arrays.copyOfRange(args, 1, args.length));
                 }
             }).start();
         }

@@ -1,20 +1,21 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
-import me.heyimblake.proxyparty.events.PartyAcceptInviteEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @PartyAnnotationCommand(
         name = "entrar",
@@ -28,42 +29,47 @@ public class JoinSubCommand extends PartySubCommand {
     @Override
     @SuppressWarnings("deprecation")
     public void execute(ProxiedPlayer player, String[] args) {
-        ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
+        UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-        if (CommandConditions.checkTargetOnline(target, player)) return;
-
-        if (CommandConditions.blockIfHasParty(player)) return;
-
-        Party party = PartyManager.getInstance().getPartyOf(target);
-
-        if (party == null || !party.getLeader().getUniqueId().equals(target.getUniqueId())) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder(
-                    "No puedes acceder a esta party no existe o tú la creaste.")
-                    .color(ChatColor.RED).create()[0]);
+        if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
             return;
         }
 
-        if (party.getMax() != -1 && party.getParticipants().size() >= party.getMax()) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder(
+        if (RedisProvider.getInstance().getParty(player.getUniqueId()) != null) {
+            player.sendMessage(new ComponentBuilder("Ya te encuentras en una party!").color(ChatColor.RED).create());
+
+            return;
+        }
+
+        RedisParty party = RedisProvider.getInstance().getParty(targetUniqueId);
+
+        if (party == null || !party.getLeader().equals(targetUniqueId.toString())) {
+            player.sendMessage(new ComponentBuilder(
+                    "No puedes acceder a esta party no existe o tú la creaste.")
+                    .color(ChatColor.RED).create());
+
+            return;
+        }
+
+        if (party.isFull()) {
+            player.sendMessage(new ComponentBuilder(
                     "La party a la que te intentas unir esta totalmente llena!")
-                    .color(ChatColor.RED).bold(true).create()[0]);
+                    .color(ChatColor.RED).bold(true).create());
             return;
         }
 
         if (!party.isPartyPublic()) {
             player.sendMessage(ChatColor.RED + "¡Está party no esta publica!");
+
             return;
         }
 
-        party.addParticipant(player);
+        RedisProvider.getInstance().removePartiesInvite(player.getUniqueId());
+        RedisProvider.getInstance().addPartyMember(party.getUniqueId(), player.getUniqueId());
 
-        if (party.getInvited().contains(player)) {
-            party.getInvited().remove(player);
-        }
+        party.sendPartyMessage("PLAYER_JOINED%" + player.getUniqueId().toString());
 
-        player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Has ingresado a la %s's Party!!", target.getName())).color(ChatColor.GREEN).create()[0]);
-
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyAcceptInviteEvent(party, player));
+        player.sendMessage(new ComponentBuilder(String.format("Has ingresado a la %s's Party!!", ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(targetUniqueId, true))).color(ChatColor.GREEN).create());
     }
 
     @Override

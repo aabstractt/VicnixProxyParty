@@ -5,6 +5,7 @@ import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.partyutils.PartySetting;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;

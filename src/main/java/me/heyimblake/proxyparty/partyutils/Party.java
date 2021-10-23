@@ -2,7 +2,6 @@ package me.heyimblake.proxyparty.partyutils;
 
 import com.jaimemartz.playerbalancer.helper.PlayerLocker;
 import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.events.*;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
@@ -53,8 +52,6 @@ public class Party {
         });
 
         PartyManager.getInstance().getActiveParties().add(this);
-
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyCreateEvent(this));
     }
 
     /**
@@ -105,7 +102,6 @@ public class Party {
      * @param player the new party leader
      */
     public void setLeader(ProxiedPlayer player) {
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPromoteEvent(this, player, this.leader));
 
         ProxyParty.getInstance().getMongo().disbandParty(this);
 
@@ -180,7 +176,6 @@ public class Party {
      * @param player the player to be removed
      */
     public void removeParticipant(ProxiedPlayer player) {
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPlayerQuitEvent(this, player));
 		
         this.participants.remove(player);
 
@@ -204,8 +199,6 @@ public class Party {
                     new ComponentBuilder(
                             String.format("Tu party ha alcanzado el máximo de jugadores (%s).", this.getMax())).color(ChatColor.RED).create()[0]);
         }
-
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyPlayerJoinEvent(this, player));
     }
 
     /**
@@ -224,8 +217,6 @@ public class Party {
      */
     public void retractInvite(ProxiedPlayer player) {
         this.invited.remove(player);
-
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyRetractInviteEvent(this, player));
     }
 
     /**
@@ -288,7 +279,6 @@ public class Party {
     }
 
     public void disband(String message) {
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyDisbandEvent(this));
 
         this.sendPartyMessage(new TextComponent(Constants.LINE));
         this.sendPartyMessage(new TextComponent(message));

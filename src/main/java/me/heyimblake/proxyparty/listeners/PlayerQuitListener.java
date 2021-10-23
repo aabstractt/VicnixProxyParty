@@ -1,10 +1,9 @@
 package me.heyimblake.proxyparty.listeners;
 
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.partyutils.PartyRole;
+import me.heyimblake.proxyparty.ProxyParty;
+import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
-import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -16,28 +15,32 @@ public class PlayerQuitListener implements Listener {
     public void onPlayerQuit(PlayerDisconnectEvent ev) {
         ProxiedPlayer player = ev.getPlayer();
 
-        new Thread(() -> RedisProvider.getInstance().removePartiesInvite(player.getUniqueId())).start();
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
+            RedisProvider.getInstance().removePartiesInvite(player.getUniqueId());
 
-        Party party = PartyManager.getInstance().getPartyOf(player);
+            RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
-        if (party == null) return;
-
-        if (party.getAllParticipants().size() <= 2) {
-            party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
-
-            return;
-        }
-
-        try {
-            if (PartyRole.getRoleOf(player) == PartyRole.LEADER) {
-                party.setLeader();
+            if (party == null) {
+                return;
             }
 
-            party.removeParticipant(player);
+            if (party.getMembers().size() <= 2) {
+                party.disband("PARTY_DISBAND_PLAYERS");
 
-            PartyManager.getInstance().getActiveParties().forEach(party1 -> party1.getInvited().remove(player));
-        } catch (Exception e) {
-            party.disband(ChatColor.RED + "La party ha sido borrada debido a que no se encontro un lider");
-        }
+                return;
+            }
+
+            try {
+                if (party.getLeader().equals(player.getUniqueId().toString())) {
+                    party.setLeader();
+                }
+
+                party.sendPartyMessage("PLAYER_LEAVE%" + player.getUniqueId().toString());
+
+                RedisProvider.getInstance().removePartyMember(party.getUniqueId(), player.getUniqueId());
+            } catch (Exception e) {
+                party.disband("PARTY_DISBAND_PLAYERS");
+            }
+        });
     }
 }

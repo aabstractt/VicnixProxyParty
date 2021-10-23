@@ -1,11 +1,10 @@
 package me.heyimblake.proxyparty.listeners;
 
 import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.partyutils.PartyPermission;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
-import net.md_5.bungee.api.ChatColor;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -19,12 +18,6 @@ public class PlayerChatListener implements Listener {
         ProxiedPlayer player = (ProxiedPlayer) ev.getSender();
 
         if (ev.isCommand() || ev.isCancelled()) return;
-
-        Party party = PartyManager.getInstance().getPartyOf(player);
-
-        if (party == null) {
-            return;
-        }
 
         if (!PartySetting.PARTY_CHAT_TOGGLE_ON.isEnabledFor(player)) {
             return;
@@ -40,6 +33,14 @@ public class PlayerChatListener implements Listener {
 
         ev.setCancelled(true);
 
-        party.sendPartyMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.getInstance().translatePrefix(player), message)));
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
+            RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
+
+            if (party == null) {
+                return;
+            }
+
+            party.sendPartyMessage("PLAYER_CHAT%" + player.getUniqueId().toString() + "%" + message);
+        });
     }
 }

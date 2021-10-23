@@ -93,6 +93,8 @@ public class PartyCommand extends Command implements TabExecutor {
             return;
         }
 
+        long start = System.nanoTime();
+
         ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
             RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
@@ -108,16 +110,14 @@ public class PartyCommand extends Command implements TabExecutor {
                 return;
             }
 
-            long start = System.nanoTime();
-
             subCommand.execute(player, newArgs);
-
-            long elapsed = System.nanoTime() - start;
-
-            if (elapsed > 250000000) {
-                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]{subCommand.getAnnotations().name(), elapsed / 1000000});
-            }
         });
+
+        long elapsed = System.nanoTime() - start;
+
+        if (elapsed > 250000000) {
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]{subCommand.getAnnotations().name(), elapsed / 1000000});
+        }
     }
 
     private void showHelpMessage(ProxiedPlayer player) {
