@@ -1,8 +1,11 @@
 package me.heyimblake.proxyparty;
 
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
+import lombok.Getter;
 import me.heyimblake.proxyparty.commands.PartyCommand;
 import me.heyimblake.proxyparty.listeners.*;
 import me.heyimblake.proxyparty.mongo.MongoModel;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.ConfigManager;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
@@ -12,22 +15,21 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
 public final class ProxyParty extends Plugin {
 
+    @Getter
     private static ProxyParty instance;
 
+    @Getter
     private LuckPerms luckPerms;
+    @Getter
+    private static RedisBungee redisBungee;
 
     private MongoModel mongo;
     private ConfigManager configManager;
-
-    public static ProxyParty getInstance() {
-        return instance;
-    }
-
-    public LuckPerms getLuckPerms() {
-        return luckPerms;
-    }
 
     @Override
     public void onEnable() {
@@ -56,6 +58,10 @@ public final class ProxyParty extends Plugin {
         this.configManager.initialize();
 
         this.mongo = new MongoModel(this.configManager.getConfiguration().getString("mongo.uri"));
+
+        RedisProvider.getInstance().init("104.238.205.60:19847", "thatsmypassword");
+
+        redisBungee = (RedisBungee) getProxy().getPluginManager().getPlugin("RedisBungee");
     }
 
     private void registerListeners() {
@@ -71,12 +77,28 @@ public final class ProxyParty extends Plugin {
         getProxy().getPluginManager().registerListener(this, new ServerKickListener());
     }
 
-    public String translatePrefix(ProxiedPlayer player) {
-        User user = luckPerms.getPlayerAdapter(ProxiedPlayer.class).getUser(player);
+    public User loadUser(String uniqueId) {
+        return loadUser(UUID.fromString(uniqueId));
+    }
 
+    public User loadUser(UUID uuid) {
+        try {
+            return luckPerms.getUserManager().loadUser(uuid).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public String translatePrefix(ProxiedPlayer player) {
+        return translatePrefix(luckPerms.getPlayerAdapter(ProxiedPlayer.class).getUser(player));
+    }
+
+    public String translatePrefix(User user) {
         String prefix = user.getCachedData().getMetaData().getPrefix();
 
-        return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) : ChatColor.GRAY) + player.getName();
+        return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) : ChatColor.GRAY) + user.getUsername();
     }
 
     public MongoModel getMongo() {

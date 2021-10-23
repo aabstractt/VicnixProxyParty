@@ -1,12 +1,12 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyCreator;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.partyutils.PartySetting;
+import me.heyimblake.proxyparty.events.PartySendInviteEvent;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
@@ -14,11 +14,13 @@ import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @PartyAnnotationCommand(
         name = "invite",
@@ -30,50 +32,46 @@ import java.util.List;
 public class InviteSubCommand extends PartySubCommand {
 
     @Override
-    @SuppressWarnings("deprecation")
     public void execute(ProxiedPlayer player, String[] args) {
-        ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
+            UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-        if (CommandConditions.checkTargetOnline(target, player)) return;
+            if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
+                return;
+            }
 
-        if (target.getName().equalsIgnoreCase(player.getName())) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
+            ServerInfo serverInfo = RedisBungee.getApi().getServerFor(targetUniqueId);
 
-            return;
-        }
+            if (/*player.getName().equalsIgnoreCase(args[0]) || */serverInfo == null || serverInfo.getName().contains("Auth")) {
+                player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
-        if(target.getServer().getInfo().getName().contains("Auth")){
-            player.sendMessage(ChatColor.RED + "El jugador no ha iniciado sesión no puedes invitarlo.");
+                return;
+            }
 
-            return;
-        }
+            RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
-        Party party = !PartyManager.getInstance().hasParty(player) ? new PartyCreator().setLeader(player).create() : PartyManager.getInstance().getPartyOf(player);
+            if (party != null) {
+                if (RedisProvider.getInstance().isAlreadyInvited(targetUniqueId, party.getUniqueId())) {
+                    player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador ya fue invitado a tu party!!").color(ChatColor.RED).create()[0]);
 
-        if (party.getInvited().contains(target) || party.isParticipant(target)) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador ya fue invitado a tu party!!").color(ChatColor.RED).create()[0]);
-            return;
-        }
+                    return;
+                }
 
-        if (PartySetting.PARTY_INVITE_RECEIVE_TOGGLE_OFF.getPlayers().contains(target)) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador tiene desactivadas la invitaciones a una party!.").color(ChatColor.RED).create()[0]);
-            return;
-        }
+                if (party.getMaxMembers() != -1 && party.getMembers().size() >= party.getMaxMembers()) {
+                    player.sendMessage(new ComponentBuilder("Tu party esta totalmente llena, compra un rango mas superior en").color(ChatColor.RED).append("\n tienda.vincix.net ").color(ChatColor.GREEN).event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://tienda.vicnix.net")).append("para tener mas slots de party!").color(ChatColor.RED).create());
 
-        if (party.getMax() != -1 && party.getAllParticipants().size() >= party.getMax()) {
-            player.sendMessage(new ComponentBuilder("Tu party esta totalmente llena, compra un rango mas superior en").color(ChatColor.RED)
-                    .append("\n tienda.vincix.net ").color(ChatColor.GREEN)
-                    .event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://tienda.vicnix.net"))
-                    .append("para tener mas slots de party!").color(ChatColor.RED).create());
+                    return;
+                }
+            } else {
+                party = RedisProvider.getInstance().createParty(player.getUniqueId());
+            }
 
-            return;
-        }
+            RedisProvider.getInstance().addPartyInvite(party.getUniqueId(), targetUniqueId);
 
-        party.invitePlayer(target);
+            ProxyServer.getInstance().getPluginManager().callEvent(new PartySendInviteEvent(party.getUniqueId(), targetUniqueId));
 
-        party.sendPartyMessage(new TextComponent(Constants.LINE));
-        party.sendPartyMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a %s &ea la party! Tiene &c%s &esegundos para &eaceptar.", ProxyParty.getInstance().translatePrefix(player), ProxyParty.getInstance().translatePrefix(target), "60"))));
-        party.sendPartyMessage(new TextComponent(Constants.LINE));
+            party.sendPartyMessage("PLAYER_INVITED%" + targetUniqueId);
+        });
     }
 
     @Override

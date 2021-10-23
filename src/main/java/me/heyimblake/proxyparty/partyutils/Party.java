@@ -215,8 +215,6 @@ public class Party {
      */
     public void invitePlayer(ProxiedPlayer player) {
         this.invited.add(player);
-
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartySendInviteEvent(this, player));
     }
 
     /**

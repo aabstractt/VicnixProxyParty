@@ -3,6 +3,7 @@ package me.heyimblake.proxyparty.listeners;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.partyutils.PartyRole;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
@@ -14,6 +15,8 @@ public class PlayerQuitListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerDisconnectEvent ev) {
         ProxiedPlayer player = ev.getPlayer();
+
+        new Thread(() -> RedisProvider.getInstance().removePartiesInvite(player.getUniqueId())).start();
 
         Party party = PartyManager.getInstance().getPartyOf(player);
 

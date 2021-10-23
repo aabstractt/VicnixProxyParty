@@ -1,8 +1,10 @@
 package me.heyimblake.proxyparty.events;
 
-import me.heyimblake.proxyparty.partyutils.Party;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.md_5.bungee.api.plugin.Event;
+
+import java.util.UUID;
 
 /**
  * Copyright (C) 2017 heyimblake
@@ -23,24 +25,10 @@ import net.md_5.bungee.api.plugin.Event;
  * @author heyimblake
  * @since 10/21/2016
  */
+@AllArgsConstructor
+@Getter
 public class PartySendInviteEvent extends Event {
-    private Party party;
-    private ProxiedPlayer player;
 
-    public PartySendInviteEvent(Party party, ProxiedPlayer player) {
-        this.party = party;
-        this.player = player;
-    }
-
-    public Party getParty() {
-        return this.party;
-    }
-
-    public ProxiedPlayer getInvited() {
-        return this.player;
-    }
-
-    public ProxiedPlayer getInviter() {
-        return this.getParty().getLeader();
-    }
+    private String partyUniqueId;
+    private UUID whoAccept;
 }

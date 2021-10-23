@@ -1,17 +1,19 @@
 package me.heyimblake.proxyparty.commands;
 
 import me.heyimblake.proxyparty.commands.subcommands.*;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.partyutils.PartyRole;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class PartyCommand extends Command implements TabExecutor {
 
@@ -99,12 +101,21 @@ public class PartyCommand extends Command implements TabExecutor {
             return;
         }
 
-        if (PartyManager.getInstance().getPartyOf(player) == null && annotations.mustBeInParty()) {
+        if (RedisProvider.getInstance().getParty(player.getUniqueId()) == null && annotations.mustBeInParty()) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("Debes estar en una party para ejecutar este comando!").color(ChatColor.RED).create()[0]);
+
             return;
         }
 
+        long start = System.nanoTime();
+
         subCommand.execute(player, newArgs);
+
+        long elapsed = System.nanoTime() - start;
+
+        if (elapsed > 250000000) {
+            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]{subCommand.getAnnotations().name(), elapsed / 1000000});
+        }
     }
 
     private void showHelpMessage(ProxiedPlayer player) {

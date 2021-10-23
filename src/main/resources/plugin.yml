@@ -3,3 +3,5 @@ version: 2.0
 main: me.heyimblake.proxyparty.ProxyParty
 author: ProxyCode & iTheTrollIdk
 description: ProxyParty fork by ProxyCode and iTheTrollIdk 2.0
+softdepend:
+  - RedisBungee

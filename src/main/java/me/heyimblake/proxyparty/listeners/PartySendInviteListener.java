@@ -4,6 +4,8 @@ import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.events.PartySendInviteEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -12,18 +14,23 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class PartySendInviteListener implements Listener {
 
     @EventHandler
     public void onPartySendInvite(PartySendInviteEvent ev) {
-        ProxiedPlayer player = ev.getInvited();
+        UUID target = ev.getWhoAccept();
+
+        /*ProxiedPlayer player = ev.getInvited();
         ProxiedPlayer inviter = ev.getInviter();
 
-        TextComponent text = new TextComponent(Constants.LINE);
+        TextComponent text = new TextComponent(Constants.LINE);*/
 
-        player.sendMessage(text);
+        RedisProvider.getInstance().sendPlayerMessage(ev.getWhoAccept(), "PARTY_INVITATION_RECEIVED%" + ev.getPartyUniqueId());
+
+        /*player.sendMessage(text);
 
         player.sendMessage(new TextComponent(" "));
         player.sendMessage(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create());
@@ -61,6 +68,6 @@ public class PartySendInviteListener implements Listener {
             if (party.getInvited().size() <= 0 && party.getParticipants().size() <= 0) {
                 party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
             }
-        }, 60, TimeUnit.SECONDS);
+        }, 60, TimeUnit.SECONDS);*/
     }
 }
