@@ -3,27 +3,30 @@ package me.heyimblake.proxyparty;
 import me.heyimblake.proxyparty.commands.PartyCommand;
 import me.heyimblake.proxyparty.listeners.*;
 import me.heyimblake.proxyparty.mongo.MongoModel;
-import me.heyimblake.proxyparty.partyutils.PartyPermission;
 import me.heyimblake.proxyparty.utils.ConfigManager;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public final class ProxyParty extends Plugin {
 
     private static ProxyParty instance;
 
+    private LuckPerms luckPerms;
+
     private MongoModel mongo;
     private ConfigManager configManager;
 
-    private final Map<String, PartyPermission> partyPermissionMap = new HashMap<>();
-
     public static ProxyParty getInstance() {
         return instance;
+    }
+
+    public LuckPerms getLuckPerms() {
+        return luckPerms;
     }
 
     @Override
@@ -38,23 +41,21 @@ public final class ProxyParty extends Plugin {
             this.getDataFolder().mkdir();
         }
 
+        try {
+            this.luckPerms = LuckPermsProvider.get();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+
+            this.getProxy().stop();
+
+            return;
+        }
+
         this.configManager = new ConfigManager();
 
         this.configManager.initialize();
 
-        this.initPartyPermissions();
-
-        this.mongo = new MongoModel(this.configManager.getString("mongo.uri"));
-    }
-
-    private void initPartyPermissions() {
-        Configuration config = (Configuration) configManager.getConfiguration().get("permissions-party-size");
-
-        for (String permission : config.getKeys()) {
-            Configuration configuration = (Configuration) config.get(permission);
-
-            this.partyPermissionMap.put(permission, new PartyPermission(permission, configuration.getString("prefix"), configuration.getInt("size")));
-        }
+        this.mongo = new MongoModel(this.configManager.getConfiguration().getString("mongo.uri"));
     }
 
     private void registerListeners() {
@@ -70,31 +71,19 @@ public final class ProxyParty extends Plugin {
         getProxy().getPluginManager().registerListener(this, new ServerKickListener());
     }
 
-    public PartyPermission getPartyPermissions(ProxiedPlayer player) {
-        PartyPermission betterPartyPermissions = this.partyPermissionMap.get("default-party");
-
-        for (PartyPermission partyPermission : this.partyPermissionMap.values()) {
-            if (betterPartyPermissions == null) {
-                betterPartyPermissions = partyPermission;
-            }
-
-            if (!player.hasPermission(partyPermission.getName())) continue;
-
-            if (partyPermission.getSize() >= betterPartyPermissions.getSize()) {
-                betterPartyPermissions = partyPermission;
-            }
-        }
-
-        return betterPartyPermissions;
-    }
-
     public String translatePrefix(ProxiedPlayer player) {
-        PartyPermission partyPermission = this.getPartyPermissions(player);
+        User user = luckPerms.getPlayerAdapter(ProxiedPlayer.class).getUser(player);
 
-        return ChatColor.translateAlternateColorCodes('&', partyPermission.getPrefix().replace("{name}", player.getName()));
+        String prefix = user.getCachedData().getMetaData().getPrefix();
+
+        return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) : ChatColor.GRAY) + player.getName();
     }
 
     public MongoModel getMongo() {
         return mongo;
+    }
+
+    public Configuration getConfig() {
+        return this.configManager.getConfiguration();
     }
 }

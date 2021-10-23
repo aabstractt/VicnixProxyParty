@@ -1,7 +1,7 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
-import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.commands.*;
+import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
+import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.events.PartyWarpEvent;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;

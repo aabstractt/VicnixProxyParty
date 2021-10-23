@@ -209,8 +209,10 @@ public class PartyCommand extends Command implements TabExecutor {
 
         PartySubCommand command = this.getCommand(args[0]);
 
-        if (command == null) return complete;
+        if (command == null) {
+            return complete;
+        }
 
-        return command.getComplete((ProxiedPlayer) commandSender, Arrays.copyOfRange(args, 1, args.length));
+        return command.loadComplete((ProxiedPlayer) commandSender, Arrays.copyOfRange(args, 1, args.length));
     }
 }

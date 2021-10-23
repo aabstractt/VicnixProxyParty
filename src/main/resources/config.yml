@@ -37,46 +37,19 @@ redisAuth: true
 # Default: -1
 maxPartySize: '-1'
 
-permissions-party-size:
- default-party:
-  prefix: "&7{name}"
-  size: 3
- hero-party:
-  prefix: "&a[HERO] {name}"
-  size: 5
- elite-party:
-  prefix: "&b[ELITE] {name}"
-  size: 7
- titan-party:
-  prefix: "&6[TITAN] {name}"
-  size: 10
- leyenda-party:
-  prefix: "&d[LEYENDA] {name}"
-  size: 15
- dios-party:
-  prefix: "&e[DIOS] {name}"
-  size: 20
- builder-party:
-  prefix: "&3[BUILDER] {name}"
-  size: 20
- helper-party:
-  prefix: "&9[HELPER] {name}"
-  size: 20
- mod-party:
-  prefix: "&2[MOD] {name}"
-  size: 20
- dev-party:
-  prefix: "&3[DEV] {name}"
-  size: 30
- admin-party:
-  prefix: "&c[ADMIN] {name}"
-  size: 30
- owner-party:
-  prefix: "&4[DUEÑO] {name}"
-  size: 30
- higher-party:
-  prefix: "&c[ADMIN] {name}"
-  size: 30
+party-size:
+ default: 3
+ hero: 5
+ elite: 7
+ titan: 10
+ leyenda: 15
+ dios: 20
+ builder: 20
+ helper: 20
+ mod: 20
+ dev: -1
+ admin: -1
+ owner: -1
 
 default-party-size: 3
 

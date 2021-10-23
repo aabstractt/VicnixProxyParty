@@ -11,7 +11,6 @@ import me.heyimblake.proxyparty.utils.CommandConditions;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -61,13 +60,11 @@ public class InviteSubCommand extends PartySubCommand {
             return;
         }
 
-        if (party.getAllParticipants().size() >= party.getMax()) {
-            BaseComponent[] message = new ComponentBuilder("Tu party esta totalmente llena, compra un rango mas superior en").color(ChatColor.RED)
+        if (party.getMax() != -1 && party.getAllParticipants().size() >= party.getMax()) {
+            player.sendMessage(new ComponentBuilder("Tu party esta totalmente llena, compra un rango mas superior en").color(ChatColor.RED)
                     .append("\n tienda.vincix.net ").color(ChatColor.GREEN)
                     .event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://tienda.vicnix.net"))
-                    .append("para tener mas slots de party!").color(ChatColor.RED).create();
-
-            player.sendMessage(message[0], message[1], message[2]);
+                    .append("para tener mas slots de party!").color(ChatColor.RED).create());
 
             return;
         }
@@ -80,7 +77,7 @@ public class InviteSubCommand extends PartySubCommand {
     }
 
     @Override
-    public List<String> getComplete(ProxiedPlayer player, String[] args) {
+    public List<String> loadComplete(ProxiedPlayer player, String[] args) {
         List<String> complete = new ArrayList<>();
 
         String name = args[0];

@@ -14,11 +14,11 @@ import java.util.Random;
 
 public class MongoModel {
 
-    private final Datastore datastore;
-    private final PartyPlayer partyDAO;
+    private Datastore datastore;
+    private PartyPlayer partyDAO;
 
     public MongoModel(String uri) {
-        MongoClient mc = new MongoClient(new MongoClientURI(uri));
+        /*MongoClient mc = new MongoClient(new MongoClientURI(uri));
 
         Morphia morphia = new Morphia();
         morphia.map(PartyReply.class);
@@ -26,10 +26,14 @@ public class MongoModel {
         datastore = morphia.createDatastore(mc, "VicnixCore");
         datastore.ensureIndexes();
 
-        partyDAO = new PartyPlayer(PartyReply.class, datastore);
+        partyDAO = new PartyPlayer(PartyReply.class, datastore);*/
     }
 
-    public void createParty(Party party){
+    public void createParty(Party party) {
+        if (this.datastore == null) {
+            return;
+        }
+
         ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             PartyReply reply = new PartyReply();
             reply.setId(new Random().nextInt(Integer.MAX_VALUE));
@@ -41,6 +45,10 @@ public class MongoModel {
     }
 
     public void updateParty(Party party){
+        if (this.datastore == null) {
+            return;
+        }
+
         ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             Query<PartyReply> query = datastore.createQuery(PartyReply.class).field("leader").contains(party.getLeader().getName());
 
@@ -53,6 +61,10 @@ public class MongoModel {
     }
 
     public void disbandParty(Party party){
+        if (this.datastore == null) {
+            return;
+        }
+
         ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), ()-> {
             String leader = party.getLeader().getName();
 

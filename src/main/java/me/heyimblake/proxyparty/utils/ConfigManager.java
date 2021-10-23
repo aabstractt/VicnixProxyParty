@@ -9,10 +9,6 @@ import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
 
 public class ConfigManager {
 
@@ -26,14 +22,6 @@ public class ConfigManager {
             this.configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(getConfigFile());
 
             Constants.TAG = new TextComponent(ChatColor.GRAY + " ");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void save() {
-        try {
-            ConfigurationProvider.getProvider(YamlConfiguration.class).save(configuration, getConfigFile());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,21 +57,5 @@ public class ConfigManager {
 
     public String getColorizedString(String key) {
         return ChatColor.translateAlternateColorCodes('&', configuration.getString(key));
-    }
-
-    public String getString(String key) {
-        return configuration.getString(key);
-    }
-
-    public Integer getInt(String key) {
-        return this.configuration.getInt(key);
-    }
-
-    public List<?> getList(String key) {
-        return this.configuration.getList(key);
-    }
-
-    public List<String> getStringList(String key) {
-        return this.getConfiguration().getStringList(key);
     }
 }

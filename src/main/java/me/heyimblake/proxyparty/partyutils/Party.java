@@ -4,6 +4,7 @@ import com.jaimemartz.playerbalancer.helper.PlayerLocker;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.events.*;
 import me.heyimblake.proxyparty.utils.Constants;
+import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -11,6 +12,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.config.Configuration;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -66,17 +68,21 @@ public class Party {
 
 
     public Integer getMax() {
-        if (this.leader == null) {
+        Configuration section = (Configuration) ProxyParty.getInstance().getConfig().get("party-size");
+
+        if (section == null) {
             return 3;
         }
 
-        try {
-            return ProxyParty.getInstance().getPartyPermissions(this.leader).getSize();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (this.leader == null) {
+            return section.getInt("default");
         }
 
-        return 3;
+        User user = ProxyParty.getInstance().getLuckPerms().getPlayerAdapter(ProxiedPlayer.class).getUser(this.leader);
+
+        String group = user.getPrimaryGroup();
+
+        return section.getInt(group, section.getInt("default"));
     }
 
     public void setLeader() throws Exception {
@@ -193,7 +199,7 @@ public class Party {
         PartyManager.getInstance().getPlayerPartyMap().put(player, this);
         PartyRole.setRoleOf(player, PartyRole.PARTICIPANT);
 
-        if (this.getParticipants().size() >= this.getMax()) {
+        if (this.getMax() != -1 && this.getParticipants().size() >= this.getMax()) {
             this.getLeader().sendMessage(Constants.TAG,
                     new ComponentBuilder(
                             String.format("Tu party ha alcanzado el máximo de jugadores (%s).", this.getMax())).color(ChatColor.RED).create()[0]);

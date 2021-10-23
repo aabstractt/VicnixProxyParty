@@ -59,7 +59,7 @@ public class KickSubCommand extends PartySubCommand {
     }
 
     @Override
-    public List<String> getComplete(ProxiedPlayer player, String[] args) {
+    public List<String> loadComplete(ProxiedPlayer player, String[] args) {
         List<String> complete = new ArrayList<>();
 
         Party party = PartyManager.getInstance().getPartyOf(player);

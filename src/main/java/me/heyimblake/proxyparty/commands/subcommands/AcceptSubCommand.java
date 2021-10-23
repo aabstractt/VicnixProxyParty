@@ -44,7 +44,7 @@ public class AcceptSubCommand extends PartySubCommand {
         }
 
         if (party.getInvited().contains(player)) {
-            if (party.getParticipants().size() >= party.getMax()) {
+            if (party.getMax() != -1 && party.getParticipants().size() >= party.getMax()) {
                 player.sendMessage(Constants.TAG, new ComponentBuilder(
                         "La party a la que te intentas unir esta totalmente llena!")
                         .color(ChatColor.RED).bold(true).create()[0]);
@@ -67,7 +67,7 @@ public class AcceptSubCommand extends PartySubCommand {
     }
 
     @Override
-    public List<String> getComplete(ProxiedPlayer player, String[] args) {
+    public List<String> loadComplete(ProxiedPlayer player, String[] args) {
         List<String> complete = new ArrayList<>();
 
         String name = args[0];
