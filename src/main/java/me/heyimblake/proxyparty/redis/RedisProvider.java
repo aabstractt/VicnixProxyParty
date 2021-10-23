@@ -241,7 +241,9 @@ public class RedisProvider {
 
     @SuppressWarnings("deprecation")
     private void handlePartyMessage(RedisParty party, String[] args) {
-        System.out.println("Args > " + Arrays.toString(args));
+        if (party == null) {
+            return;
+        }
 
         if (args[0].equalsIgnoreCase("PLAYER_INVITED")) {
             User user = ProxyParty.getInstance().loadUser(args[1]);
@@ -441,10 +443,6 @@ public class RedisProvider {
                         return;
                     }
 
-                    if (party0.getMembers().contains(playerUniqueId)) {
-                        return;
-                    }
-
                     player.sendMessage(Constants.LINE);
 
                     player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de %s &eha expirado!", prefix))));
@@ -457,7 +455,7 @@ public class RedisProvider {
                         party0.disband("PARTY_DISBAND_PLAYERS");
                     }
                 });
-            }, 10, TimeUnit.SECONDS);
+            }, 60, TimeUnit.SECONDS);
 
             return;
         }
@@ -546,8 +544,6 @@ public class RedisProvider {
         @Override
         public void onMessage(String channel, String message) {
             new Thread(() -> {
-                System.out.println("Message received > " + message);
-
                 String[] args = message.split("%");
 
                 if (args[0].equalsIgnoreCase("PLAYER")) {

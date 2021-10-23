@@ -1,6 +1,5 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
-import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
@@ -12,7 +11,6 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.ArrayList;
@@ -31,10 +29,10 @@ public class InviteSubCommand extends PartySubCommand {
             return;
         }
 
-        ServerInfo serverInfo = RedisBungee.getApi().getServerFor(targetUniqueId);
+        String serverName = ProxyParty.getRedisBungee().getDataManager().getServer(targetUniqueId);
 
-        if (player.getName().equalsIgnoreCase(args[0]) || serverInfo == null || serverInfo.getName().contains("Auth")) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
+        if (player.getName().equalsIgnoreCase(args[0]) || serverName == null || serverName.contains("Auth")) {
+            player.sendMessage(Constants.TAG, new ComponentBuilder("No se puede invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
         }
