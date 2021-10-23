@@ -209,11 +209,15 @@ public class RedisProvider {
         redisTransactions.runTransaction(jedis -> {
             String hash = String.format(HASH_PARTY_INVITED, partyUniqueId);
 
-            if (!jedis.sismember(hash, uniqueId.toString())) {
-                return;
+            if (jedis.sismember(hash, uniqueId.toString())) {
+                jedis.srem(hash, uniqueId.toString());
             }
 
-            jedis.srem(hash, uniqueId.toString());
+            hash = String.format(HASH_PLAYER_PARTY_INVITES, uniqueId);
+
+            if (jedis.sismember(hash, partyUniqueId)) {
+                jedis.srem(hash, partyUniqueId);
+            }
         });
     }
 
