@@ -59,7 +59,7 @@ public final class ProxyParty extends Plugin {
 
         this.mongo = new MongoModel(this.configManager.getConfiguration().getString("mongo.uri"));
 
-        RedisProvider.getInstance().init("104.238.205.60:19847", "thatsmypassword");
+        RedisProvider.getInstance().init(getConfig().getString("redis.host"), getConfig().getString("redis.password"));
 
         redisBungee = (RedisBungee) getProxy().getPluginManager().getPlugin("RedisBungee");
     }
@@ -102,7 +102,7 @@ public final class ProxyParty extends Plugin {
     public String translatePrefix(User user) {
         String prefix = user.getCachedData().getMetaData().getPrefix();
 
-        return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) : ChatColor.GRAY) + user.getUsername();
+        return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) : ChatColor.GRAY) + " " + user.getUsername();
     }
 
     public MongoModel getMongo() {

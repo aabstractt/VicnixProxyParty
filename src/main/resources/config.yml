@@ -37,6 +37,10 @@ redisAuth: true
 # Default: -1
 maxPartySize: '-1'
 
+redis:
+ host: 0.0.0.0
+ password: "thatsmypassword"
+
 party-size:
  default: 3
  hero: 5

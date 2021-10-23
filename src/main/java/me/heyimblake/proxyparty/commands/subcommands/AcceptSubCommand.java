@@ -28,11 +28,11 @@ public class AcceptSubCommand extends PartySubCommand {
             return;
         }
 
-        /*if (RedisProvider.getInstance().getParty(player.getUniqueId()) != null) {
+        if (RedisProvider.getInstance().getParty(player.getUniqueId()) != null) {
             player.sendMessage(new ComponentBuilder("Ya te encuentras en una party!").color(ChatColor.RED).create());
 
             return;
-        }*/
+        }
 
         RedisParty party = RedisProvider.getInstance().getParty(targetUniqueId);
 

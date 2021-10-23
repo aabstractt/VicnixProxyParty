@@ -33,7 +33,7 @@ public class InviteSubCommand extends PartySubCommand {
 
         ServerInfo serverInfo = RedisBungee.getApi().getServerFor(targetUniqueId);
 
-        if (/*player.getName().equalsIgnoreCase(args[0]) || */serverInfo == null || serverInfo.getName().contains("Auth")) {
+        if (player.getName().equalsIgnoreCase(args[0]) || serverInfo == null || serverInfo.getName().contains("Auth")) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No se puedes invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
