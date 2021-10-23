@@ -1,11 +1,12 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
-import me.heyimblake.proxyparty.utils.Constants;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -21,21 +22,24 @@ public class DisbandSubCommand extends PartySubCommand {
     @Override
     @SuppressWarnings("deprecation")
     public void execute(ProxiedPlayer player, String[] args) {
-        Party party = PartyManager.getInstance().getPartyOf(player);
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
+            RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
-        if (party == null) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("No estas en una party!").color(ChatColor.RED).create()[0]);
+            if (party == null) {
+                player.sendMessage(new ComponentBuilder("No estas en una party!").color(ChatColor.RED).create());
 
-            return;
-        }
+                return;
+            }
 
-        if(!party.getLeader().getName().equalsIgnoreCase(player.getName())){
-            player.sendMessage(ChatColor.RED + "No puedes eliminar una party sin ser lider.");
-            return;
-        }
+            if (!party.getLeader().equals(player.getUniqueId().toString())) {
+                player.sendMessage(ChatColor.RED + "No puedes eliminar una party sin ser lider.");
 
-        party.disband();
+                return;
+            }
 
-        player.sendMessage(Constants.TAG, new ComponentBuilder("Has eliminado la party.").color(ChatColor.YELLOW).create()[0]);
+            party.disband("PARTY_DISBAND%" + ProxyParty.getInstance().translatePrefix(player));
+
+            player.sendMessage(new ComponentBuilder("Has eliminado la party.").color(ChatColor.YELLOW).create());
+        });
     }
 }

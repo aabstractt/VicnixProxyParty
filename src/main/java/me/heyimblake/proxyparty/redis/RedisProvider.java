@@ -76,6 +76,15 @@ public class RedisProvider {
         });
     }
 
+    public void disbandParty(String partyUniqueId, UUID uniqueId) {
+        redisTransactions.runTransaction(jedis -> {
+            jedis.del(String.format(HASH_PARTY_LEADER, partyUniqueId));
+            jedis.del(String.format(HASH_PLAYER_PARTY, uniqueId.toString()));
+            jedis.del(String.format(HASH_PARTY_MEMBERS, partyUniqueId));
+            jedis.del(String.format(HASH_PARTY_INVITED, partyUniqueId));
+        });
+    }
+
     public boolean isAlreadyInvited(UUID uniqueId, String partyUniqueId) {
         return redisTransactions.runTransaction(jedis -> {
             return jedis.sismember(String.format(HASH_PLAYER_PARTY_INVITES, uniqueId.toString()), partyUniqueId);
@@ -228,6 +237,22 @@ public class RedisProvider {
                 player.sendMessage(ProxyParty.getInstance().translatePrefix(user) + ChatColor.GREEN + " se ha unido a la party!");
                 player.sendMessage(new TextComponent(Constants.LINE));
             }
+
+            return;
+        }
+
+        if (args[0].equals("PARTY_DENIED")) {
+            User user = ProxyParty.getInstance().loadUser(args[1]);
+
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                player.sendMessage(ProxyParty.getInstance().translatePrefix(user) + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
+            }
         }
     }
 
@@ -282,6 +307,12 @@ public class RedisProvider {
             }, 60, TimeUnit.SECONDS);*/
 
             return;
+        }
+
+        if (args[0].equals("PARTY_DISBAND")) {
+            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &eha borrado la party!", args[1])));
+            player.sendMessage(new TextComponent(Constants.LINE));
         }
     }
 

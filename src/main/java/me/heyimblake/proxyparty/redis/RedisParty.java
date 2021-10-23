@@ -2,9 +2,6 @@ package me.heyimblake.proxyparty.redis;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import me.heyimblake.proxyparty.events.PartySendInviteEvent;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
 
 import java.util.Set;
 import java.util.UUID;
@@ -19,14 +16,18 @@ public class RedisParty {
     private Set<String> invited;
     private int maxMembers;
 
-    public void invitePlayer(UUID targetUniqueId) {
-        // TODO: insert into redis the invitation
-    }
-
     public void sendPartyMessage(String message) {
         RedisProvider.getRedisTransactions().runTransaction(jedis -> {
             jedis.publish("REDIS_PARTIES_CHANNEL", "PARTY%" + this.uniqueId + "%" + message);
         });
+    }
+
+    public void disband(String message) {
+        for (String uniqueId : this.members) {
+            RedisProvider.getInstance().sendPlayerMessage(UUID.fromString(uniqueId), message);
+        }
+
+        RedisProvider.getInstance().disbandParty(this.uniqueId, UUID.fromString(this.leader));
     }
 
     public boolean isFull() {

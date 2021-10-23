@@ -95,6 +95,16 @@ public final class ProxyParty extends Plugin {
         return translatePrefix(luckPerms.getPlayerAdapter(ProxiedPlayer.class).getUser(player));
     }
 
+    public String translatePrefix(UUID uuid) {
+        User user = loadUser(uuid);
+
+        if (user == null) {
+            return "";
+        }
+
+        return translatePrefix(user);
+    }
+
     public String translatePrefix(User user) {
         String prefix = user.getCachedData().getMetaData().getPrefix();
 
