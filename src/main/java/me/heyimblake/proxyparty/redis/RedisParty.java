@@ -2,9 +2,9 @@ package me.heyimblake.proxyparty.redis;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import me.heyimblake.proxyparty.ProxyParty;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @AllArgsConstructor
 @Data
@@ -32,5 +32,27 @@ public class RedisParty {
 
     public boolean isFull() {
         return this.maxMembers != -1 && this.members.size() >= this.maxMembers;
+    }
+
+    public void setLeader() throws Exception {
+        List<String> members = new ArrayList<>(this.members);
+
+        Collections.sort(members);
+
+        UUID uniqueId = UUID.fromString(members.get(0));
+        String name = ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(uniqueId, true);
+
+        if (name == null) {
+            throw new Exception("Leader not found");
+        }
+
+        sendPartyMessage("PARTY_TRANSFER%" + uniqueId + "%" + this.leader);
+        RedisProvider.getInstance().setPartyLeader(this.uniqueId, uniqueId);
+    }
+
+    public void setLeader(UUID uniqueId) {
+        sendPartyMessage("PARTY_TRANSFER%" + uniqueId + "%" + this.leader);
+
+        RedisProvider.getInstance().setPartyLeader(this.uniqueId, uniqueId);
     }
 }

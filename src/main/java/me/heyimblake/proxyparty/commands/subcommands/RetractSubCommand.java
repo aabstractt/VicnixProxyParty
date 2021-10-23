@@ -1,15 +1,17 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.util.UUID;
 
 @PartyAnnotationCommand(
         name = "removerinvitacion",
@@ -22,27 +24,27 @@ public class RetractSubCommand extends PartySubCommand {
 
     @Override
     public void execute(ProxiedPlayer player, String[] args) {
-        ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
+        UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-        if (CommandConditions.checkTargetOnline(target, player)) return;
+        if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
+            return;
+        }
 
-        Party party = PartyManager.getInstance().getPartyOf(player);
+        RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
-        if (!party.getInvited().contains(target)) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("%s no ha sido invitado a tu party.", target.getName())).color(ChatColor.RED).create()[0]);
+        if (!party.getInvited().contains(targetUniqueId.toString())) {
+            player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("%s no ha sido invitado a tu party.", args[0])).color(ChatColor.RED).create()[0]);
 
             return;
         }
 
-        party.retractInvite(target);
+        RedisProvider.getInstance().removePartyInvite(party.getUniqueId(), targetUniqueId);
 
-        player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Haz removido la invitación " +
-                "de la party al jugador %s.", target.getName())).color(ChatColor.GREEN).create()[0]);
+        player.sendMessage(new ComponentBuilder(String.format("Haz removido la invitación de la party al jugador %s.", ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(targetUniqueId, true))).color(ChatColor.GREEN).create());
 
-        target.sendMessage(Constants.TAG, new ComponentBuilder(String.format("%s ha removido tu invitacion de la party.",
-                player.getName())).color(ChatColor.GREEN).create()[0]);
+        RedisProvider.getInstance().sendPlayerMessage(targetUniqueId, "PARTY_RETRACTED%" + ProxyParty.getInstance().translatePrefix(player));
 
-        if (party.getInvited().size() <= 0 && party.getParticipants().size() <= 0) {
+        if ((party.getInvited().size() - 1) <= 0 && party.getMembers().size() <= 1) {
             party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
         }
     }

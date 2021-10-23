@@ -1,7 +1,8 @@
 package me.heyimblake.proxyparty.commands;
 
+import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.subcommands.*;
-import me.heyimblake.proxyparty.partyutils.PartyRole;
+import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
@@ -27,10 +28,8 @@ public class PartyCommand extends Command implements TabExecutor {
         registerSubCommand(new AcceptSubCommand());
         registerSubCommand(new DenySubCommand());
         registerSubCommand(new DenySubCommand(), "deny");
-        registerSubCommand(new FindSubCommand());
         registerSubCommand(new ListSubCommand());
         registerSubCommand(new ListSubCommand(), "list");
-        registerSubCommand(new InvitedSubCommand());
         registerSubCommand(new RetractSubCommand());
         registerSubCommand(new KickSubCommand());
         registerSubCommand(new ChatSubCommand());
@@ -84,13 +83,6 @@ public class PartyCommand extends Command implements TabExecutor {
 
         if (annotations == null) return;
 
-        if (PartyRole.getRoleOf(player) == PartyRole.PARTICIPANT && annotations.leaderExclusive()) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder(
-                    "Debes ser lider de la party para usar este comando").color(ChatColor.RED).create()[0]);
-
-            return;
-        }
-
         if (newArgs.length == 0 && annotations.requiresArgumentCompletion()) {
             player.sendMessage(Constants.TAG, new TextComponent("Uso: "),
                     new ComponentBuilder(annotations.syntax()).color(ChatColor.GREEN)
@@ -101,21 +93,31 @@ public class PartyCommand extends Command implements TabExecutor {
             return;
         }
 
-        if (RedisProvider.getInstance().getParty(player.getUniqueId()) == null && annotations.mustBeInParty()) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("Debes estar en una party para ejecutar este comando!").color(ChatColor.RED).create()[0]);
+        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
+            RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
-            return;
-        }
+            if (party == null && annotations.mustBeInParty()) {
+                player.sendMessage(Constants.TAG, new ComponentBuilder("Debes estar en una party para ejecutar este comando!").color(ChatColor.RED).create()[0]);
 
-        long start = System.nanoTime();
+                return;
+            }
 
-        subCommand.execute(player, newArgs);
+            if (party != null && !party.getLeader().equals(player.getUniqueId().toString()) && annotations.leaderExclusive()) {
+                player.sendMessage(new ComponentBuilder("Debes ser lider de la party para usar este comando").color(ChatColor.RED).create());
 
-        long elapsed = System.nanoTime() - start;
+                return;
+            }
 
-        if (elapsed > 250000000) {
-            ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]{subCommand.getAnnotations().name(), elapsed / 1000000});
-        }
+            long start = System.nanoTime();
+
+            subCommand.execute(player, newArgs);
+
+            long elapsed = System.nanoTime() - start;
+
+            if (elapsed > 250000000) {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "Event {0} took {1}ms to process!", new Object[]{subCommand.getAnnotations().name(), elapsed / 1000000});
+            }
+        });
     }
 
     private void showHelpMessage(ProxiedPlayer player) {

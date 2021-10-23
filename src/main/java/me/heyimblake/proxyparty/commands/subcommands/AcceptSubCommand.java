@@ -8,7 +8,6 @@ import me.heyimblake.proxyparty.partyutils.PartyManager;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -19,23 +18,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-@PartyAnnotationCommand(
-        name = "aceptar",
-        syntax = "/party aceptar <Jugador>",
-        description = "Acepta la invitacion de una party.",
-        requiresArgumentCompletion = true,
-        mustBeInParty = false
-)
+@PartyAnnotationCommand(name = "aceptar", syntax = "/party aceptar <Jugador>", description = "Acepta la invitacion de una party.", requiresArgumentCompletion = true, mustBeInParty = false)
 public class AcceptSubCommand extends PartySubCommand {
 
     @Override
     public void execute(ProxiedPlayer player, String[] args) {
-        ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
-            UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
+        UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-            if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
-                return;
-            }
+        if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
+            return;
+        }
 
             /*if (RedisProvider.getInstance().getParty(player.getUniqueId()) != null) {
                 player.sendMessage(Constants.TAG, new ComponentBuilder("Ya te encuentras en una party!").color(ChatColor.RED).create()[0]);
@@ -43,25 +35,24 @@ public class AcceptSubCommand extends PartySubCommand {
                 return;
             }*/
 
-            RedisParty party = RedisProvider.getInstance().getParty(targetUniqueId);
+        RedisParty party = RedisProvider.getInstance().getParty(targetUniqueId);
 
-            if (party == null || !party.getLeader().equals(targetUniqueId.toString()) || !party.getInvited().contains(player.getUniqueId().toString())) {
-                player.sendMessage(new ComponentBuilder("El jugador especificado o la party a la que te intentas unir ya no existe o se ha expirado la invitacion").color(ChatColor.RED).create());
+        if (party == null || !party.getLeader().equals(targetUniqueId.toString()) || !party.getInvited().contains(player.getUniqueId().toString())) {
+            player.sendMessage(new ComponentBuilder("El jugador especificado o la party a la que te intentas unir ya no existe o se ha expirado la invitacion").color(ChatColor.RED).create());
 
-                return;
-            }
+            return;
+        }
 
-            if (party.isFull()) {
-                player.sendMessage(new ComponentBuilder("La party a la que te intentas unir esta totalmente llena!").color(ChatColor.RED).bold(true).create());
+        if (party.isFull()) {
+            player.sendMessage(new ComponentBuilder("La party a la que te intentas unir esta totalmente llena!").color(ChatColor.RED).bold(true).create());
 
-                return;
-            }
+            return;
+        }
 
-            RedisProvider.getInstance().removePartiesInvite(player.getUniqueId());
-            RedisProvider.getInstance().addPartyMember(party.getUniqueId(), player.getUniqueId());
+        RedisProvider.getInstance().removePartiesInvite(player.getUniqueId());
+        RedisProvider.getInstance().addPartyMember(party.getUniqueId(), player.getUniqueId());
 
-            party.sendPartyMessage("PLAYER_JOINED%" + player.getUniqueId().toString());
-        });
+        party.sendPartyMessage("PLAYER_JOINED%" + player.getUniqueId().toString());
     }
 
     @Override

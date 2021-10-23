@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 public class RedisProvider {
 
@@ -82,6 +82,12 @@ public class RedisProvider {
             jedis.del(String.format(HASH_PLAYER_PARTY, uniqueId.toString()));
             jedis.del(String.format(HASH_PARTY_MEMBERS, partyUniqueId));
             jedis.del(String.format(HASH_PARTY_INVITED, partyUniqueId));
+        });
+    }
+
+    public void setPartyLeader(String partyUniqueId, UUID uniqueId) {
+        redisTransactions.runTransaction(jedis -> {
+            jedis.set(String.format(HASH_PARTY_LEADER, partyUniqueId), uniqueId.toString());
         });
     }
 
@@ -167,6 +173,22 @@ public class RedisProvider {
         });
     }
 
+    public void removePartyMember(String partyUniqueId, UUID uniqueId) {
+        redisTransactions.runTransaction(jedis -> {
+            String hash = String.format(HASH_PARTY_MEMBERS, partyUniqueId);
+
+            if (jedis.sismember(hash, uniqueId.toString())) {
+                jedis.srem(hash, uniqueId.toString());
+            }
+
+            hash = String.format(HASH_PLAYER_PARTY, uniqueId);
+
+            if (jedis.exists(hash)) {
+                jedis.del(hash);
+            }
+        });
+    }
+
     public void removePartyInvite(String partyUniqueId, UUID uniqueId) {
         redisTransactions.runTransaction(jedis -> {
             String hash = String.format(HASH_PARTY_INVITED, partyUniqueId);
@@ -201,6 +223,7 @@ public class RedisProvider {
         });
     }
 
+    @SuppressWarnings("deprecation")
     private void handlePartyMessage(RedisParty party, String[] args) {
         System.out.println("Args > " + Arrays.toString(args));
 
@@ -253,9 +276,47 @@ public class RedisProvider {
 
                 player.sendMessage(ProxyParty.getInstance().translatePrefix(user) + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
             }
+
+            return;
+        }
+
+        if (args[0].equals("PLAYER_LEAVE")) {
+            User user = ProxyParty.getInstance().loadUser(args[1]);
+
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                player.sendMessage(new TextComponent(Constants.LINE));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("%s &ese ha salido de la party.", ProxyParty.getInstance().translatePrefix(user))));
+                player.sendMessage(new TextComponent(Constants.LINE));
+            }
+
+            return;
+        }
+
+        if (args[0].equals("PARTY_TRANSFER")) {
+            User user = ProxyParty.getInstance().loadUser(args[1]);
+            User user0 = ProxyParty.getInstance().loadUser(args[2]);
+
+            for (String uniqueId : party.getMembers()) {
+                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+
+                if (player == null) {
+                    continue;
+                }
+
+                player.sendMessage(new TextComponent(Constants.LINE));
+                player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a %s&e por %s", ProxyParty.getInstance().translatePrefix(user), ProxyParty.getInstance().translatePrefix(user0)))));
+                player.sendMessage(new TextComponent(Constants.LINE));
+            }
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void handlePlayerMessage(String playerUniqueId, String[] args) {
         ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(playerUniqueId));
 
@@ -276,43 +337,86 @@ public class RedisProvider {
             player.sendMessage(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create());
 
             User user = ProxyParty.getInstance().loadUser(party.getLeader());
-            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("%s &ete ha invitado a unirte a su party!", ProxyParty.getInstance().translatePrefix(user)))));
+
+            String prefix = ProxyParty.getInstance().translatePrefix(user);
+
+            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("%s &ete ha invitado a unirte a su party!", prefix))));
 
             player.sendMessage(new TextComponent(" "));
-            player.sendMessage(new ComponentBuilder("[ACEPTAR]").color(ChatColor.GREEN).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party aceptar " + party.getLeader())).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para aceptar la invitacion!")})).append(" - ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.GRAY).append("[RECHAZAR]").color(ChatColor.RED).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party rechazar " + party.getLeader())).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para rechazar la invitacion")})).create());
+            player.sendMessage(new ComponentBuilder("[ACEPTAR]").color(ChatColor.GREEN).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party aceptar " + user.getUsername())).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para aceptar la invitacion!")})).append(" - ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.GRAY).append("[RECHAZAR]").color(ChatColor.RED).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party rechazar " + user.getUsername())).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para rechazar la invitacion")})).create());
             player.sendMessage(new TextComponent(" "));
 
             player.sendMessage(new TextComponent(Constants.LINE));
 
-            /*ProxyServer.getInstance().getScheduler().schedule(ProxyParty.getInstance(), () -> {
-                if (!inviter.isConnected() || !player.isConnected()) return;
-
-                Party party = PartyManager.getInstance().getPartyOf(inviter);
-
-                if (party == null || !party.getLeader().getUniqueId().equals(inviter.getUniqueId())) return;
-
-                if (!party.getInvited().contains(player)) return;
-
-                player.sendMessage(text);
-
-                player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de %s &eha expirado!", ProxyParty.getInstance().translatePrefix(inviter)))));
-
-                player.sendMessage(text);
-
-                party.getInvited().remove(player);
-
-                if (party.getInvited().size() <= 0 && party.getParticipants().size() <= 0) {
-                    party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
+            ProxyServer.getInstance().getScheduler().schedule(ProxyParty.getInstance(), () -> {
+                if (!player.isConnected()) {
+                    return;
                 }
-            }, 60, TimeUnit.SECONDS);*/
+
+                ProxyServer.getInstance().getScheduler().runAsync(ProxyParty.getInstance(), () -> {
+                    RedisParty party0 = getParty(args[1]);
+
+                    if (party0 == null) {
+                        return;
+                    }
+
+                    if (!party0.getInvited().contains(playerUniqueId)) {
+                        return;
+                    }
+
+                    if (party0.getMembers().contains(playerUniqueId)) {
+                        return;
+                    }
+
+                    player.sendMessage(Constants.LINE);
+
+                    player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de %s &eha expirado!", prefix))));
+
+                    player.sendMessage(Constants.LINE);
+
+                    removePartyInvite(party0.getUniqueId(), player.getUniqueId());
+
+                    if ((party0.getMembers().size() - 1) <= 0) {
+                        party0.disband("PARTY_DISBAND_PLAYERS");
+                    }
+                });
+            }, 10, TimeUnit.SECONDS);
 
             return;
         }
 
         if (args[0].equals("PARTY_DISBAND")) {
             player.sendMessage(new TextComponent(Constants.LINE));
+
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &eha borrado la party!", args[1])));
+
             player.sendMessage(new TextComponent(Constants.LINE));
+
+            return;
+        }
+
+        if (args[0].equals("PARTY_DISBAND_PLAYERS")) {
+            player.sendMessage(new TextComponent(Constants.LINE));
+
+            player.sendMessage(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
+
+            player.sendMessage(new TextComponent(Constants.LINE));
+
+            return;
+        }
+
+        if (args[0].equals("PARTY_KICK")) {
+            player.sendMessage(new TextComponent(Constants.LINE));
+
+            player.sendMessage(ProxyParty.getInstance().translatePrefix(UUID.fromString(args[1])) + ChatColor.RED + " te ha sacado de la party.");
+
+            player.sendMessage(new TextComponent(Constants.LINE));
+
+            return;
+        }
+
+        if (args[0].equals("PARTY_RETRACTED")) {
+            player.sendMessage(new ComponentBuilder(String.format("%s ha removido tu invitacion de la party.", args[1])).color(ChatColor.GREEN).create());
         }
     }
 

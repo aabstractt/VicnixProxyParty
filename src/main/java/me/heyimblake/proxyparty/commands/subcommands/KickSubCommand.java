@@ -1,60 +1,57 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
 import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.commands.*;
-import me.heyimblake.proxyparty.events.PartyKickEvent;
+import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
+import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.partyutils.Party;
 import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
-@PartyAnnotationCommand(
-        name = "kick",
-        syntax = "/party kick <Jugador>",
-        description = "Kickear a un jugador de la party",
-        requiresArgumentCompletion = true,
-        leaderExclusive = true
-)
+@PartyAnnotationCommand(name = "kick", syntax = "/party kick <Jugador>", description = "Kickear a un jugador de la party", requiresArgumentCompletion = true, leaderExclusive = true)
 public class KickSubCommand extends PartySubCommand {
 
     @Override
     public void execute(ProxiedPlayer player, String[] args) {
-        ProxiedPlayer target = ProxyServer.getInstance().getPlayer(args[0]);
+        UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-        Party party = PartyManager.getInstance().getPartyOf(player);
-
-        if (CommandConditions.checkTargetOnline(target, player)) return;
-
-        Party targetParty = PartyManager.getInstance().getPartyOf(target);
-
-        if (targetParty == null || targetParty != party) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador no esta en tu party!").color(ChatColor.RED).create()[0]);
-
+        if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
             return;
         }
 
-        if (party.getLeader().getUniqueId().equals(target.getUniqueId()) || target.getUniqueId().equals(player.getUniqueId())) {
+        RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
+
+        if (party.getLeader().equals(targetUniqueId.toString()) || player.getUniqueId().equals(targetUniqueId)) {
             player.sendMessage(Constants.TAG, new ComponentBuilder("No puedes kickearte a ti mismo o al lider de la party.").color(ChatColor.RED).create()[0]);
 
             return;
         }
 
-        party.removeParticipant(target);
+        if (!party.getMembers().contains(targetUniqueId.toString())) {
+            player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador no esta en tu party!").color(ChatColor.RED).create()[0]);
 
-        ProxyServer.getInstance().getPluginManager().callEvent(new PartyKickEvent(party, target));
+            return;
+        }
 
-        player.sendMessage(Constants.TAG, new ComponentBuilder(String.format("Haz kickeado a %s de tu party!!", target.getName())).color(ChatColor.YELLOW).create()[0]);
+        RedisProvider.getInstance().removePartyMember(party.getUniqueId(), targetUniqueId);
 
-        if (party.getParticipants().size() <= 0) {
-            party.disband(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
+        party.sendPartyMessage("PLAYER_LEAVE%" + targetUniqueId);
+        RedisProvider.getInstance().sendPlayerMessage(targetUniqueId, "PARTY_KICK%" + player.getUniqueId().toString());
+
+        player.sendMessage(ProxyParty.getInstance().translatePrefix(targetUniqueId) + ChatColor.YELLOW + " ha sido removido de tu party.");
+
+        if ((party.getMembers().size() - 1) <= 0) {
+            party.disband("PARTY_DISBAND_PLAYERS");
         }
     }
 

@@ -1,14 +1,19 @@
 package me.heyimblake.proxyparty.commands.subcommands;
 
 import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.commands.*;
-import me.heyimblake.proxyparty.partyutils.Party;
-import me.heyimblake.proxyparty.partyutils.PartyManager;
+import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
+import me.heyimblake.proxyparty.commands.PartySubCommand;
+import me.heyimblake.proxyparty.redis.RedisParty;
+import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @PartyAnnotationCommand(
         name = "lista",
@@ -21,33 +26,33 @@ public class ListSubCommand extends PartySubCommand {
     @Override
     @SuppressWarnings("deprecation")
     public void execute(ProxiedPlayer player, String[] args) {
-        Party party = PartyManager.getInstance().getPartyOf(player);
+        RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
         TextComponent line1 = new TextComponent("Lider de la Party: ");
 
         line1.setColor(ChatColor.YELLOW);
         line1.setBold(true);
-        line1.addExtra(new TextComponent(party.getLeader().getName()));
+        line1.addExtra(new TextComponent(ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(UUID.fromString(party.getLeader()), true)));
 
-        if (party.getParticipants().size() != 0) {
+        if (party.getMembers().size() > 1) {
             TextComponent line2 = new TextComponent("Miembros de la Party");
 
             line2.setColor(ChatColor.AQUA);
 
-            TextComponent count = new TextComponent(" (" + party.getParticipants().size() + "/" + party.getMax() + ")");
+            TextComponent count = new TextComponent(" (" + party.getMembers().size() + "/" + party.getMaxMembers() + ")");
 
             count.setColor(ChatColor.AQUA);
             line2.addExtra(count);
 
-            String allParticipants = "";
+            List<String> membersString = new ArrayList<>();
 
-            for (ProxiedPlayer participant : party.getParticipants()) {
-                allParticipants = allParticipants + ChatColor.GREEN + ProxyParty.getInstance().translatePrefix(participant) + ChatColor.GRAY+ ", ";
+            for (String memberId : party.getMembers()) {
+                membersString.add(ProxyParty.getInstance().translatePrefix(UUID.fromString(memberId)));
             }
 
-            player.sendMessage(Constants.TAG, line1);
-            player.sendMessage(Constants.TAG, line2);
-            player.sendMessage(allParticipants);
+            player.sendMessage(line1);
+            player.sendMessage(line2);
+            player.sendMessage(String.join(ChatColor.GRAY + ", " + ChatColor.GREEN, membersString));
         } else {
             player.sendMessage(Constants.TAG, line1);
             player.sendMessage(Constants.TAG, new ComponentBuilder("No hay participanes en la party.").color(ChatColor.RED).create()[0]);
