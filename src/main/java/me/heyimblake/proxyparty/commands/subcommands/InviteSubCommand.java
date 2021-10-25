@@ -8,14 +8,10 @@ import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.CommandConditions;
 import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 @PartyAnnotationCommand(name = "invite", syntax = "/party invite <Player>", description = "Invitar un jugador a tu party!", requiresArgumentCompletion = true, leaderExclusive = true, mustBeInParty = false)
@@ -60,32 +56,5 @@ public class InviteSubCommand extends PartySubCommand {
         party.sendPartyMessage("PLAYER_INVITED%" + targetUniqueId);
 
         RedisProvider.getInstance().sendPlayerMessage(targetUniqueId, "PARTY_INVITATION_RECEIVED%" + party.getUniqueId());
-    }
-
-    @Override
-    public List<String> loadComplete(ProxiedPlayer player, String[] args) {
-        List<String> complete = new ArrayList<>();
-
-        String name = args[0];
-
-        int lastSpaceIndex = name.lastIndexOf(' ');
-
-        if (lastSpaceIndex >= 0) {
-            name = name.substring(lastSpaceIndex + 1);
-        }
-
-        for (ProxiedPlayer proxiedPlayer : ProxyServer.getInstance().getPlayers()) {
-            if (!proxiedPlayer.getName().toLowerCase().startsWith(name.toLowerCase())) {
-                continue;
-            }
-
-            if (complete.contains(proxiedPlayer.getName())) continue;
-
-            complete.add(proxiedPlayer.getName());
-        }
-
-        Collections.sort(complete);
-
-        return complete;
     }
 }

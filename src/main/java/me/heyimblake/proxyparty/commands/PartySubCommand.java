@@ -2,9 +2,6 @@ package me.heyimblake.proxyparty.commands;
 
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class PartySubCommand {
 
     public abstract void execute(ProxiedPlayer player, String[] args);
@@ -20,9 +17,5 @@ public abstract class PartySubCommand {
         }
 
         return null;
-    }
-
-    public List<String> loadComplete(ProxiedPlayer player, String[] args) {
-        return new ArrayList<>();
     }
 }
