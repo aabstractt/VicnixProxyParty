@@ -38,7 +38,7 @@ public class ListSubCommand extends PartySubCommand {
 
             line2.setColor(ChatColor.AQUA);
 
-            TextComponent count = new TextComponent(" (" + party.getMembers().size() + "/" + party.getMaxMembers() + ")");
+            TextComponent count = new TextComponent(" (" + party.getMembers().size() + "/" + Math.abs(party.getMaxMembers()) + ")");
 
             count.setColor(ChatColor.AQUA);
             line2.addExtra(count);

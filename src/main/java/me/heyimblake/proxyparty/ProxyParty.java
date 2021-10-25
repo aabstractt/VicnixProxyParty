@@ -114,6 +114,10 @@ public final class ProxyParty extends Plugin {
         return loadUser(player).getPrimaryGroup().equals("dev") || player.hasPermission("vicnix.party.announce");
     }
 
+    public static boolean isDev(ProxiedPlayer player) {
+        return loadUser(player).getPrimaryGroup().equals("dev") || player.hasPermission("vicnix.party.dev");
+    }
+
     public Configuration getConfig() {
         return this.configManager.getConfiguration();
     }

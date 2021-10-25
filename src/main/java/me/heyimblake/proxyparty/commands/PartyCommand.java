@@ -44,6 +44,8 @@ public class PartyCommand extends Command implements TabExecutor {
 
         registerSubCommand(new PromoteSubCommand());
         registerSubCommand(new PromoteSubCommand(), "transfer");
+        registerSubCommand(new ForceJoinSubCommand());
+        registerSubCommand(new ForceTransferSubCommand());
     }
 
     @Override

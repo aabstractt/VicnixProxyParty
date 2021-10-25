@@ -23,6 +23,12 @@ public class ForceJoinSubCommand extends PartySubCommand {
 
     @Override
     public void execute(ProxiedPlayer player, String[] args) {
+        if (!ProxyParty.isDev(player)) {
+            player.sendMessage(ChatColor.RED + "No tienes permisos de ejecutar esté comando.");
+
+            return;
+        }
+
         UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
         if (checkTargetOnline(targetUniqueId, player)) {
