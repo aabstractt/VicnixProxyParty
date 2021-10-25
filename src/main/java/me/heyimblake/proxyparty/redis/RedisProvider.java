@@ -243,159 +243,63 @@ public class RedisProvider {
         });
     }
 
-    @SuppressWarnings("deprecation")
     private void handlePartyMessage(RedisParty party, String[] args) {
         if (party == null) {
             return;
         }
 
-        if (args[0].equalsIgnoreCase("PLAYER_INVITED")) {
-            User user = ProxyParty.getInstance().loadUser(args[1]);
-            User user0 = ProxyParty.getInstance().loadUser(party.getLeader());
+        String type = args[0];
 
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(new TextComponent(Constants.LINE));
-                player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a %s &ea la party! Tiene &c%s &esegundos para &eaceptar.", ProxyParty.getInstance().translatePrefix(user0), ProxyParty.getInstance().translatePrefix(user), "60"))));
-                player.sendMessage(new TextComponent(Constants.LINE));
-            }
+        if (type.equalsIgnoreCase("PLAYER_INVITED")) {
+            party.handlePlayerInvitedMessage(ProxyParty.getInstance().loadUser(args[1]), ProxyParty.getInstance().loadUser(party.getLeader()));
 
             return;
         }
 
-        if (args[0].equals("PLAYER_JOINED")) {
-            User user = ProxyParty.getInstance().loadUser(args[1]);
-
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(new TextComponent(Constants.LINE));
-                player.sendMessage(ProxyParty.getInstance().translatePrefix(user) + ChatColor.GREEN + " se ha unido a la party!");
-                player.sendMessage(new TextComponent(Constants.LINE));
-            }
+        if (type.equals("PLAYER_JOINED")) {
+            party.handlePlayerJoinMessage(ProxyParty.getInstance().loadUser(args[1]));
 
             return;
         }
 
-        if (args[0].equals("PARTY_DENIED")) {
-            User user = ProxyParty.getInstance().loadUser(args[1]);
-
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(ProxyParty.getInstance().translatePrefix(user) + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
-            }
+        if (type.equals("PLAYER_LEAVE")) {
+            party.handlePlayerLeaveMessage(ProxyParty.getInstance().loadUser(args[1]));
 
             return;
         }
 
-        if (args[0].equals("PLAYER_KICKED")) {
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(new TextComponent(Constants.LINE));
-                player.sendMessage(new ComponentBuilder("No se ha podido conectar a todos los miembros de la party al servidor actual").color(ChatColor.RED).create());
-                player.sendMessage(new TextComponent(Constants.LINE));
-            }
+        if (type.equals("PARTY_DENIED")) {
+            party.handlePlayerDenyMessage(ProxyParty.getInstance().loadUser(args[1]));
 
             return;
         }
 
-        if (args[0].equals("PARTY_WARP")) {
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(new ComponentBuilder("El lider de la party los ha movido a este servidor!").color(ChatColor.AQUA).create());
-            }
-            return;
-        }
-
-        if (args[0].equals("PLAYER_CHAT")) {
-            User user = ProxyParty.getInstance().loadUser(args[1]);
-
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.getInstance().translatePrefix(user), args[2])));
-            }
+        if (type.equals("PLAYER_KICKED")) {
+            party.handlePlayerKickedMessage();
 
             return;
         }
 
-        if (args[0].equals("PLAYER_LEAVE")) {
-            User user = ProxyParty.getInstance().loadUser(args[1]);
-
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(new TextComponent(Constants.LINE));
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("%s &ese ha salido de la party.", ProxyParty.getInstance().translatePrefix(user))));
-                player.sendMessage(new TextComponent(Constants.LINE));
-            }
+        if (type.equals("PARTY_WARP")) {
+            party.handlePartyWarpMessage();
 
             return;
         }
 
-        if (args[0].equals("PARTY_TRANSFER")) {
-            User user = ProxyParty.getInstance().loadUser(args[1]);
-            User user0 = ProxyParty.getInstance().loadUser(args[2]);
+        if (type.equals("PLAYER_CHAT")) {
+            party.handlePartyChatMessage(ProxyParty.getInstance().loadUser(args[1]), args[2]);
 
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
+            return;
+        }
 
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(new TextComponent(Constants.LINE));
-                player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a %s&e por %s", ProxyParty.getInstance().translatePrefix(user), ProxyParty.getInstance().translatePrefix(user0)))));
-                player.sendMessage(new TextComponent(Constants.LINE));
-            }
+        if (type.equals("PARTY_TRANSFER")) {
+            party.handlePartyTransferMessage(ProxyParty.getInstance().loadUser(args[1]), ProxyParty.getInstance().loadUser(args[2]));
 
             return;
         }
 
         if (args[0].equals("PARTY_STATUS_UPDATE")) {
-            for (String uniqueId : party.getMembers()) {
-                ProxiedPlayer player = ProxyServer.getInstance().getPlayer(UUID.fromString(uniqueId));
-
-                if (player == null) {
-                    continue;
-                }
-
-                player.sendMessage(new TextComponent(Constants.LINE));
-                player.sendMessage(ChatColor.GREEN + "La party ahora es " + ChatColor.GOLD + args[1]);
-                player.sendMessage(new TextComponent(Constants.LINE));
-            }
+            party.handlePartyStatusMessage(args[1]);
         }
     }
 

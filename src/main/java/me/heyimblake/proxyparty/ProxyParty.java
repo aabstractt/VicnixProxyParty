@@ -102,7 +102,7 @@ public final class ProxyParty extends Plugin {
     public String translatePrefix(User user) {
         String prefix = user.getCachedData().getMetaData().getPrefix();
 
-        return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) : ChatColor.GRAY) + " " + redisBungee.getUuidTranslator().getNameFromUuid(user.getUniqueId(), true);
+        return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) + " " : ChatColor.GRAY) + redisBungee.getUuidTranslator().getNameFromUuid(user.getUniqueId(), true);
     }
 
     public MongoModel getMongo() {
