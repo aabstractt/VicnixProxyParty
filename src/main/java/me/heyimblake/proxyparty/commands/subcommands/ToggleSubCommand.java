@@ -2,7 +2,6 @@ package me.heyimblake.proxyparty.commands.subcommands;
 
 import me.heyimblake.proxyparty.commands.*;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -23,7 +22,7 @@ public class ToggleSubCommand extends PartySubCommand {
         PartySetting partySetting = PartySetting.getPartySetting(settingString);
 
         if (partySetting == null) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("No puedes editar esta configuración ya que no existe, configuraciones disponibles: ")
+            player.sendMessage(new ComponentBuilder("No puedes editar esta configuración ya que no existe, configuraciones disponibles: ")
                     .color(ChatColor.RED).create()[0]);
             sendAllSettings(player);
 
@@ -40,7 +39,7 @@ public class ToggleSubCommand extends PartySubCommand {
 
         msg2.setColor(ChatColor.GREEN);
 
-        player.sendMessage(Constants.TAG, msg, msg2);
+        player.sendMessage(msg, msg2);
     }
 
     private void sendAllSettings(ProxiedPlayer player) {
@@ -54,6 +53,6 @@ public class ToggleSubCommand extends PartySubCommand {
 
         msg.setColor(ChatColor.WHITE);
 
-        player.sendMessage(Constants.TAG, msg);
+        player.sendMessage(msg);
     }
 }

@@ -20,8 +20,6 @@ public class ConfigManager {
 
         try {
             this.configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(getConfigFile());
-
-            Constants.TAG = new TextComponent(ChatColor.GRAY + " ");
         } catch (IOException e) {
             e.printStackTrace();
         }

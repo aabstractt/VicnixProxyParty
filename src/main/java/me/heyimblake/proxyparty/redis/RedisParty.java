@@ -3,7 +3,6 @@ package me.heyimblake.proxyparty.redis;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import me.heyimblake.proxyparty.ProxyParty;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -73,9 +72,9 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(new TextComponent(Constants.LINE));
-            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a %s &ea la party! Tiene &c%s &esegundos para &eaceptar.", ProxyParty.getInstance().translatePrefix(user0), ProxyParty.getInstance().translatePrefix(user), "60"))));
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
+            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &einvito a %s &ea la party! Tiene &c%s &esegundos para &eaceptar.", ProxyParty.translatePrefix(user0), ProxyParty.translatePrefix(user), "60"))));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
         }
     }
 
@@ -87,9 +86,9 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(new TextComponent(Constants.LINE));
-            player.sendMessage(ProxyParty.getInstance().translatePrefix(user) + ChatColor.GREEN + " se ha unido a la party!");
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
+            player.sendMessage(ProxyParty.translatePrefix(user) + ChatColor.GREEN + " se ha unido a la party!");
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
         }
     }
 
@@ -101,9 +100,9 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(new TextComponent(Constants.LINE));
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("%s &ese ha salido de la party.", ProxyParty.getInstance().translatePrefix(user))));
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("%s &ese ha salido de la party.", ProxyParty.translatePrefix(user))));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
         }
     }
 
@@ -115,7 +114,7 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(ProxyParty.getInstance().translatePrefix(user) + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
+            player.sendMessage(ProxyParty.translatePrefix(user) + ChatColor.YELLOW + " ha rechazado la invitacion a tu party!");
         }
     }
 
@@ -127,9 +126,9 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
             player.sendMessage(new ComponentBuilder("No se ha podido conectar a todos los miembros de la party al servidor actual").color(ChatColor.RED).create());
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
         }
     }
 
@@ -153,7 +152,7 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.getInstance().translatePrefix(user), ChatColor.stripColor(message))));
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&7[&bParty&7] &e%s: &7%s", ProxyParty.translatePrefix(user), ChatColor.stripColor(message))));
         }
     }
 
@@ -165,9 +164,9 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(new TextComponent(Constants.LINE));
-            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a %s&e por %s", ProxyParty.getInstance().translatePrefix(user), ProxyParty.getInstance().translatePrefix(user0)))));
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
+            player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa party fue transferida a %s&e por %s", ProxyParty.translatePrefix(user), ProxyParty.translatePrefix(user0)))));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
         }
     }
 
@@ -179,9 +178,9 @@ public class RedisParty {
                 continue;
             }
 
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
             player.sendMessage(ChatColor.GREEN + "La party ahora es " + ChatColor.GOLD + status);
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
         }
     }
 }

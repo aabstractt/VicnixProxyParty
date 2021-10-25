@@ -48,4 +48,6 @@ public @interface PartyAnnotationCommand {
      * @return true if sender must be in a party, false otherwise
      */
     boolean mustBeInParty() default true;
+
+    boolean showHelp() default true;
 }

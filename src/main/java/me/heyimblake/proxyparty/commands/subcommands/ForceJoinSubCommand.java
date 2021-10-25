@@ -12,16 +12,16 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.util.UUID;
 
 @PartyAnnotationCommand(
-        name = "entrar",
-        syntax = "/party entrar <Jugador>",
-        description = "Entrar a una party si es publica.",
+        name = "forcejoin",
+        description = "Forzar la entrada a una party",
+        mustBeInParty = false,
+        syntax = "/party forcejoin <player>",
         requiresArgumentCompletion = true,
-        mustBeInParty = false
+        showHelp = false
 )
-public class JoinSubCommand extends PartySubCommand {
+public class ForceJoinSubCommand extends PartySubCommand {
 
     @Override
-    @SuppressWarnings("deprecation")
     public void execute(ProxiedPlayer player, String[] args) {
         UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
@@ -29,31 +29,10 @@ public class JoinSubCommand extends PartySubCommand {
             return;
         }
 
-        if (RedisProvider.getInstance().getParty(player.getUniqueId()) != null) {
-            player.sendMessage(new ComponentBuilder("Ya te encuentras en una party!").color(ChatColor.RED).create());
-
-            return;
-        }
-
         RedisParty party = RedisProvider.getInstance().getParty(targetUniqueId);
 
-        if (party == null || !party.getLeader().equals(targetUniqueId.toString())) {
-            player.sendMessage(new ComponentBuilder(
-                    "No puedes acceder a esta party no existe o tú la creaste.")
-                    .color(ChatColor.RED).create());
-
-            return;
-        }
-
-        if (party.isFull()) {
-            player.sendMessage(new ComponentBuilder(
-                    "La party a la que te intentas unir esta totalmente llena!")
-                    .color(ChatColor.RED).bold(true).create());
-            return;
-        }
-
-        if (!party.isPartyPublic()) {
-            player.sendMessage(ChatColor.RED + "¡Está party no esta publica!");
+        if (party == null) {
+            player.sendMessage(new ComponentBuilder("El jugador especificado no se encuentra en una party.").color(ChatColor.RED).create());
 
             return;
         }

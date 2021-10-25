@@ -8,7 +8,6 @@ import com.jaimemartz.playerbalancer.helper.PlayerLocker;
 import lombok.Getter;
 import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.partyutils.PartySetting;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.luckperms.api.model.user.User;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
@@ -29,6 +28,9 @@ public class RedisProvider {
     public static String HASH_PLAYER_PARTY_INVITES = "player#party#invites:%s";
     public static String HASH_PARTY_STATUS = "party#status:%s";
     public static String HASH_PARTY_LEADER = "party#leader:%s";
+
+    public static String HASH_PARTY_ANNOUNCE = "party#time";
+    public static String HASH_PLAYER_ANNOUNCE = "player#time";
 
     @Getter
     private static final RedisProvider instance = new RedisProvider();
@@ -251,25 +253,25 @@ public class RedisProvider {
         String type = args[0];
 
         if (type.equalsIgnoreCase("PLAYER_INVITED")) {
-            party.handlePlayerInvitedMessage(ProxyParty.getInstance().loadUser(args[1]), ProxyParty.getInstance().loadUser(party.getLeader()));
+            party.handlePlayerInvitedMessage(ProxyParty.loadUser(args[1]), ProxyParty.loadUser(party.getLeader()));
 
             return;
         }
 
         if (type.equals("PLAYER_JOINED")) {
-            party.handlePlayerJoinMessage(ProxyParty.getInstance().loadUser(args[1]));
+            party.handlePlayerJoinMessage(ProxyParty.loadUser(args[1]));
 
             return;
         }
 
         if (type.equals("PLAYER_LEAVE")) {
-            party.handlePlayerLeaveMessage(ProxyParty.getInstance().loadUser(args[1]));
+            party.handlePlayerLeaveMessage(ProxyParty.loadUser(args[1]));
 
             return;
         }
 
         if (type.equals("PARTY_DENIED")) {
-            party.handlePlayerDenyMessage(ProxyParty.getInstance().loadUser(args[1]));
+            party.handlePlayerDenyMessage(ProxyParty.loadUser(args[1]));
 
             return;
         }
@@ -287,13 +289,13 @@ public class RedisProvider {
         }
 
         if (type.equals("PLAYER_CHAT")) {
-            party.handlePartyChatMessage(ProxyParty.getInstance().loadUser(args[1]), args[2]);
+            party.handlePartyChatMessage(ProxyParty.loadUser(args[1]), args[2]);
 
             return;
         }
 
         if (type.equals("PARTY_TRANSFER")) {
-            party.handlePartyTransferMessage(ProxyParty.getInstance().loadUser(args[1]), ProxyParty.getInstance().loadUser(args[2]));
+            party.handlePartyTransferMessage(ProxyParty.loadUser(args[1]), ProxyParty.loadUser(args[2]));
 
             return;
         }
@@ -318,14 +320,14 @@ public class RedisProvider {
                 return;
             }
 
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
 
             player.sendMessage(new TextComponent(" "));
             player.sendMessage(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create());
 
-            User user = ProxyParty.getInstance().loadUser(party.getLeader());
+            User user = ProxyParty.loadUser(party.getLeader());
 
-            String prefix = ProxyParty.getInstance().translatePrefix(user);
+            String prefix = ProxyParty.translatePrefix(user);
 
             player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("%s &ete ha invitado a unirte a su party!", prefix))));
 
@@ -333,7 +335,7 @@ public class RedisProvider {
             player.sendMessage(new ComponentBuilder("[ACEPTAR]").color(ChatColor.GREEN).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party aceptar " + user.getUsername())).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para aceptar la invitacion!")})).append(" - ", ComponentBuilder.FormatRetention.NONE).color(ChatColor.GRAY).append("[RECHAZAR]").color(ChatColor.RED).bold(true).event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party rechazar " + user.getUsername())).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(ChatColor.GRAY + "Click para rechazar la invitacion")})).create());
             player.sendMessage(new TextComponent(" "));
 
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
 
             ProxyServer.getInstance().getScheduler().schedule(ProxyParty.getInstance(), () -> {
                 if (!player.isConnected()) {
@@ -351,11 +353,11 @@ public class RedisProvider {
                         return;
                     }
 
-                    player.sendMessage(Constants.LINE);
+                    player.sendMessage(ProxyParty.LINE);
 
                     player.sendMessage(new TextComponent(ChatColor.translateAlternateColorCodes('&', String.format("&eLa invitacion de party de %s &eha expirado!", prefix))));
 
-                    player.sendMessage(Constants.LINE);
+                    player.sendMessage(ProxyParty.LINE);
 
                     removePartyInvite(party0.getUniqueId(), player.getUniqueId());
 
@@ -369,33 +371,33 @@ public class RedisProvider {
         }
 
         if (args[0].equals("PARTY_DISBAND")) {
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
 
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', String.format("&a%s &eha borrado la party!", args[1])));
 
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
             PartySetting.PARTY_CHAT_TOGGLE_ON.disable(player);
 
             return;
         }
 
         if (args[0].equals("PARTY_DISBAND_PLAYERS")) {
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
 
             player.sendMessage(ChatColor.RED + "La party ha sido borrada debido a la falta de jugadores");
 
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
             PartySetting.PARTY_CHAT_TOGGLE_ON.disable(player);
 
             return;
         }
 
         if (args[0].equals("PARTY_KICK")) {
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
 
-            player.sendMessage(ProxyParty.getInstance().translatePrefix(UUID.fromString(args[1])) + ChatColor.RED + " te ha sacado de la party.");
+            player.sendMessage(ProxyParty.translatePrefix(UUID.fromString(args[1])) + ChatColor.RED + " te ha sacado de la party.");
 
-            player.sendMessage(new TextComponent(Constants.LINE));
+            player.sendMessage(new TextComponent(ProxyParty.LINE));
             PartySetting.PARTY_CHAT_TOGGLE_ON.disable(player);
 
             return;
@@ -409,10 +411,12 @@ public class RedisProvider {
     @SuppressWarnings("deprecation")
     private void handleMessage(String[] args) {
         if (args[0].equals("UPDATE")) {
-            ProxyServer.getInstance().broadcast(new TextComponent(Constants.LINE));
-            ProxyServer.getInstance().broadcast(args[1] + ChatColor.YELLOW + " ha creado una party publica!");
-            ProxyServer.getInstance().broadcast(ChatColor.YELLOW + "Utiliza " + ChatColor.GREEN + "/party join " + ChatColor.stripColor(args[1]) + ChatColor.YELLOW + " para entrar.");
-            ProxyServer.getInstance().broadcast(new TextComponent(Constants.LINE));
+            User user = ProxyParty.loadUser(args[1]);
+
+            ProxyServer.getInstance().broadcast(new TextComponent(ProxyParty.LINE));
+            ProxyServer.getInstance().broadcast(ProxyParty.translatePrefix(user) + ChatColor.YELLOW + " ha creado una party publica!");
+            ProxyServer.getInstance().broadcast(ChatColor.YELLOW + "Utiliza " + ChatColor.GREEN + "/party join " + ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(user.getUniqueId(), true) + ChatColor.YELLOW + " para entrar.");
+            ProxyServer.getInstance().broadcast(new TextComponent(ProxyParty.LINE));
 
             return;
         }

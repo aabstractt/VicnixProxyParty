@@ -4,7 +4,6 @@ import me.heyimblake.proxyparty.ProxyParty;
 import me.heyimblake.proxyparty.commands.subcommands.*;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -51,7 +50,7 @@ public class PartyCommand extends Command implements TabExecutor {
     @SuppressWarnings("deprecation")
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof ProxiedPlayer)) {
-            sender.sendMessage(Constants.TAG, new TextComponent("No puedes ejecutar comandos desde la consola."));
+            sender.sendMessage(new TextComponent("No puedes ejecutar comandos desde la consola."));
 
             return;
         }
@@ -84,7 +83,7 @@ public class PartyCommand extends Command implements TabExecutor {
         if (annotations == null) return;
 
         if (newArgs.length == 0 && annotations.requiresArgumentCompletion()) {
-            player.sendMessage(Constants.TAG, new TextComponent("Uso: "),
+            player.sendMessage(new TextComponent("Uso: "),
                     new ComponentBuilder(annotations.syntax()).color(ChatColor.GREEN)
                             .event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/party "
                                     + args[0] + " "))
@@ -99,7 +98,7 @@ public class PartyCommand extends Command implements TabExecutor {
             RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
             if (party == null && annotations.mustBeInParty()) {
-                player.sendMessage(Constants.TAG, new ComponentBuilder("Debes estar en una party para ejecutar este comando!").color(ChatColor.RED).create()[0]);
+                player.sendMessage(new ComponentBuilder("Debes estar en una party para ejecutar este comando!").color(ChatColor.RED).create()[0]);
 
                 return;
             }
@@ -136,7 +135,9 @@ public class PartyCommand extends Command implements TabExecutor {
         for (PartySubCommand command : commands.values()) {
             PartyAnnotationCommand annotations = command.getAnnotations();
 
-            if (annotations == null) continue;
+            if (annotations == null || !annotations.showHelp()) {
+                continue;
+            }
 
             TextComponent pt1 = new TextComponent(annotations.syntax());
             pt1.setColor(ChatColor.YELLOW);

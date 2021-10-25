@@ -5,8 +5,6 @@ import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
-import me.heyimblake.proxyparty.utils.CommandConditions;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -20,7 +18,7 @@ public class DenySubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-        if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
+        if (checkTargetOnline(targetUniqueId, player)) {
             return;
         }
 
@@ -33,7 +31,7 @@ public class DenySubCommand extends PartySubCommand {
         }
 
         if (!party.getInvited().contains(player.getUniqueId().toString())) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("No tienes invitacion a esta party.").color(ChatColor.RED).create()[0]);
+            player.sendMessage(new ComponentBuilder("No tienes invitacion a esta party.").color(ChatColor.RED).create()[0]);
 
             return;
         }
@@ -42,6 +40,6 @@ public class DenySubCommand extends PartySubCommand {
 
         party.sendPartyMessage("PARTY_DENIED%" + player.getUniqueId());
 
-        player.sendMessage(new ComponentBuilder(String.format("Has declinado la invitacion de la party de %s!.", ProxyParty.getInstance().translatePrefix(targetUniqueId))).color(ChatColor.GREEN).create());
+        player.sendMessage(new ComponentBuilder(String.format("Has declinado la invitacion de la party de %s!.", ProxyParty.translatePrefix(targetUniqueId))).color(ChatColor.GREEN).create());
     }
 }

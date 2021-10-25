@@ -5,7 +5,6 @@ import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
-import me.heyimblake.proxyparty.utils.CommandConditions;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -19,7 +18,7 @@ public class AcceptSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-        if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
+        if (checkTargetOnline(targetUniqueId, player)) {
             return;
         }
 

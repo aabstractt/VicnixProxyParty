@@ -8,13 +8,7 @@ import me.heyimblake.proxyparty.redis.RedisProvider;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-@PartyAnnotationCommand(
-        name = "publica",
-        syntax = "/party publica",
-        description = "Cambiar el estado de tú party a publica o privada",
-        requiresArgumentCompletion = false,
-        leaderExclusive = true
-)
+@PartyAnnotationCommand(name = "publica", syntax = "/party publica", description = "Cambiar el estado de tú party a publica o privada", requiresArgumentCompletion = false, leaderExclusive = true)
 public class PublicSubCommand extends PartySubCommand {
 
     @Override
@@ -28,7 +22,9 @@ public class PublicSubCommand extends PartySubCommand {
             return;
         }
 
-        if (!party.getLeader().equals(player.getUniqueId().toString())) {
+        String uniqueId = player.getUniqueId().toString();
+
+        if (!party.getLeader().equals(uniqueId)) {
             player.sendMessage(ChatColor.RED + "Debes ser lider la party!");
 
             return;
@@ -43,7 +39,27 @@ public class PublicSubCommand extends PartySubCommand {
         }
 
         RedisProvider.getRedisTransactions().runTransaction(jedis -> {
-            jedis.publish("REDIS_PARTIES_CHANNEL", "BUNGEE%UPDATE%" + ProxyParty.getInstance().translatePrefix(player));
+            if (!ProxyParty.canAnnounce(player)) {
+                if (jedis.sismember(RedisProvider.HASH_PARTY_ANNOUNCE, party.getUniqueId())) {
+                    player.sendMessage(ChatColor.RED + "Tienes que esperar " + jedis.ttl(RedisProvider.HASH_PARTY_ANNOUNCE + ":" + party.getUniqueId()) + " segundos para que tu party se anuncie en global.");
+
+                    return;
+                }
+
+                if (jedis.sismember(RedisProvider.HASH_PLAYER_ANNOUNCE, uniqueId)) {
+                    player.sendMessage(ChatColor.RED + "Tienes que esperar " + jedis.ttl(RedisProvider.HASH_PLAYER_ANNOUNCE + ":" + uniqueId) + " segundos para que tu party se anuncie en global.");
+
+                    return;
+                }
+            }
+
+            jedis.sadd(RedisProvider.HASH_PARTY_ANNOUNCE, party.getUniqueId());
+            jedis.expire(RedisProvider.HASH_PARTY_ANNOUNCE + ":" + party.getUniqueId(), 25);
+
+            jedis.sadd(RedisProvider.HASH_PLAYER_ANNOUNCE, uniqueId);
+            jedis.expire(RedisProvider.HASH_PLAYER_ANNOUNCE + ":" + uniqueId, 25);
+
+            jedis.publish("REDIS_PARTIES_CHANNEL", "BUNGEE%UPDATE%" + uniqueId);
         });
     }
 }

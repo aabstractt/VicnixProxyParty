@@ -29,7 +29,7 @@ public class DisbandSubCommand extends PartySubCommand {
             return;
         }
 
-        party.disband("PARTY_DISBAND%" + ProxyParty.getInstance().translatePrefix(player));
+        party.disband("PARTY_DISBAND%" + ProxyParty.translatePrefix(player));
 
         player.sendMessage(new ComponentBuilder("Has eliminado la party.").color(ChatColor.YELLOW).create());
     }

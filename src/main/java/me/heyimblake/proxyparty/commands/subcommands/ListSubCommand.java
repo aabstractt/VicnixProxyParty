@@ -5,7 +5,6 @@ import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -47,15 +46,15 @@ public class ListSubCommand extends PartySubCommand {
             List<String> membersString = new ArrayList<>();
 
             for (String memberId : party.getMembers()) {
-                membersString.add(ProxyParty.getInstance().translatePrefix(UUID.fromString(memberId)));
+                membersString.add(ProxyParty.translatePrefix(UUID.fromString(memberId)));
             }
 
             player.sendMessage(line1);
             player.sendMessage(line2);
             player.sendMessage(String.join(ChatColor.GRAY + ", " + ChatColor.GREEN, membersString));
         } else {
-            player.sendMessage(Constants.TAG, line1);
-            player.sendMessage(Constants.TAG, new ComponentBuilder("No hay participanes en la party.").color(ChatColor.RED).create()[0]);
+            player.sendMessage(line1);
+            player.sendMessage(new ComponentBuilder("No hay participanes en la party.").color(ChatColor.RED).create()[0]);
         }
     }
 }

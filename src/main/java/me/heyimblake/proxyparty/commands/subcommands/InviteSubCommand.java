@@ -5,8 +5,6 @@ import me.heyimblake.proxyparty.commands.PartyAnnotationCommand;
 import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
-import me.heyimblake.proxyparty.utils.CommandConditions;
-import me.heyimblake.proxyparty.utils.Constants;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -21,14 +19,14 @@ public class InviteSubCommand extends PartySubCommand {
     public void execute(ProxiedPlayer player, String[] args) {
         UUID targetUniqueId = ProxyParty.getRedisBungee().getUuidTranslator().getTranslatedUuid(args[0], true);
 
-        if (CommandConditions.checkTargetOnline(targetUniqueId, player)) {
+        if (checkTargetOnline(targetUniqueId, player)) {
             return;
         }
 
         String serverName = ProxyParty.getRedisBungee().getDataManager().getServer(targetUniqueId);
 
         if (player.getName().equalsIgnoreCase(args[0]) || serverName == null || serverName.contains("Auth")) {
-            player.sendMessage(Constants.TAG, new ComponentBuilder("No se puede invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
+            player.sendMessage(new ComponentBuilder("No se puede invitar este jugador a la party!").color(ChatColor.RED).create()[0]);
 
             return;
         }
@@ -37,7 +35,7 @@ public class InviteSubCommand extends PartySubCommand {
 
         if (party != null) {
             if (RedisProvider.getInstance().isAlreadyInvited(targetUniqueId, party.getUniqueId())) {
-                player.sendMessage(Constants.TAG, new ComponentBuilder("Este jugador ya fue invitado a tu party!!").color(ChatColor.RED).create()[0]);
+                player.sendMessage(new ComponentBuilder("Este jugador ya fue invitado a tu party!!").color(ChatColor.RED).create()[0]);
 
                 return;
             }

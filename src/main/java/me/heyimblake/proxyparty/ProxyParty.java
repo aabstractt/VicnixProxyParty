@@ -3,8 +3,10 @@ package me.heyimblake.proxyparty;
 import com.imaginarycode.minecraft.redisbungee.RedisBungee;
 import lombok.Getter;
 import me.heyimblake.proxyparty.commands.PartyCommand;
-import me.heyimblake.proxyparty.listeners.*;
-import me.heyimblake.proxyparty.mongo.MongoModel;
+import me.heyimblake.proxyparty.listeners.PlayerChatListener;
+import me.heyimblake.proxyparty.listeners.PlayerQuitListener;
+import me.heyimblake.proxyparty.listeners.PlayerServerSwitchListener;
+import me.heyimblake.proxyparty.listeners.ServerKickListener;
 import me.heyimblake.proxyparty.redis.RedisProvider;
 import me.heyimblake.proxyparty.utils.ConfigManager;
 import net.luckperms.api.LuckPerms;
@@ -20,6 +22,8 @@ import java.util.concurrent.ExecutionException;
 
 public final class ProxyParty extends Plugin {
 
+    public static String LINE = ChatColor.LIGHT_PURPLE + ChatColor.STRIKETHROUGH.toString() + "--------------------------------";
+
     @Getter
     private static ProxyParty instance;
 
@@ -28,7 +32,6 @@ public final class ProxyParty extends Plugin {
     @Getter
     private static RedisBungee redisBungee;
 
-    private MongoModel mongo;
     private ConfigManager configManager;
 
     @Override
@@ -57,8 +60,6 @@ public final class ProxyParty extends Plugin {
 
         this.configManager.initialize();
 
-        this.mongo = new MongoModel(this.configManager.getConfiguration().getString("mongo.uri"));
-
         RedisProvider.getInstance().init(getConfig().getString("redis.host"), getConfig().getString("redis.password"));
 
         redisBungee = (RedisBungee) getProxy().getPluginManager().getPlugin("RedisBungee");
@@ -71,13 +72,13 @@ public final class ProxyParty extends Plugin {
         getProxy().getPluginManager().registerListener(this, new ServerKickListener());
     }
 
-    public User loadUser(String uniqueId) {
+    public static User loadUser(String uniqueId) {
         return loadUser(UUID.fromString(uniqueId));
     }
 
-    public User loadUser(UUID uuid) {
+    public static User loadUser(UUID uuid) {
         try {
-            return luckPerms.getUserManager().loadUser(uuid).get();
+            return instance.luckPerms.getUserManager().loadUser(uuid).get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
@@ -85,11 +86,15 @@ public final class ProxyParty extends Plugin {
         return null;
     }
 
-    public String translatePrefix(ProxiedPlayer player) {
-        return translatePrefix(luckPerms.getPlayerAdapter(ProxiedPlayer.class).getUser(player));
+    public static User loadUser(ProxiedPlayer player) {
+        return instance.luckPerms.getPlayerAdapter(ProxiedPlayer.class).getUser(player);
     }
 
-    public String translatePrefix(UUID uuid) {
+    public static String translatePrefix(ProxiedPlayer player) {
+        return translatePrefix(loadUser(player));
+    }
+
+    public static String translatePrefix(UUID uuid) {
         User user = loadUser(uuid);
 
         if (user == null) {
@@ -99,14 +104,14 @@ public final class ProxyParty extends Plugin {
         return translatePrefix(user);
     }
 
-    public String translatePrefix(User user) {
+    public static String translatePrefix(User user) {
         String prefix = user.getCachedData().getMetaData().getPrefix();
 
         return (prefix != null ? ChatColor.translateAlternateColorCodes('&', prefix) + " " : ChatColor.GRAY) + redisBungee.getUuidTranslator().getNameFromUuid(user.getUniqueId(), true);
     }
 
-    public MongoModel getMongo() {
-        return mongo;
+    public static boolean canAnnounce(ProxiedPlayer player) {
+        return loadUser(player).getPrimaryGroup().equals("dev") || player.hasPermission("vicnix.party.announce");
     }
 
     public Configuration getConfig() {
