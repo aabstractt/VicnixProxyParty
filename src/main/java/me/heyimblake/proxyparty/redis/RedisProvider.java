@@ -26,7 +26,7 @@ public class RedisProvider {
     public static String HASH_PARTY_MEMBERS = "party#members:%s";
     public static String HASH_PARTY_INVITED = "party#invited:%s";
     public static String HASH_PLAYER_PARTY_INVITES = "player#party#invites:%s";
-    public static String HASH_PARTY_STATUS = "party#status:%s";
+    public static String HASH_PARTY_STATUS = "party#status";
     public static String HASH_PARTY_LEADER = "party#leader:%s";
 
     public static String HASH_PARTY_ANNOUNCE = "party#time";
@@ -87,7 +87,8 @@ public class RedisProvider {
             jedis.del(String.format(HASH_PLAYER_PARTY, uniqueId.toString()));
             jedis.del(String.format(HASH_PARTY_MEMBERS, partyUniqueId));
             jedis.del(String.format(HASH_PARTY_INVITED, partyUniqueId));
-            jedis.del(String.format(HASH_PARTY_STATUS, partyUniqueId));
+            jedis.srem(HASH_PARTY_ANNOUNCE, partyUniqueId);
+            this.setPartyPublic(partyUniqueId, false);
         });
     }
 
@@ -99,13 +100,17 @@ public class RedisProvider {
 
     public void setPartyPublic(String partyUniqueId, boolean isPublic) {
         redisTransactions.runTransaction(jedis -> {
-            jedis.set(String.format(HASH_PARTY_STATUS, partyUniqueId), isPublic ? "ENABLE" : "DISABLE");
+            if (isPublic) {
+                jedis.sadd(HASH_PARTY_STATUS, partyUniqueId);
+            } else {
+                jedis.srem(HASH_PARTY_STATUS, partyUniqueId);
+            }
         });
     }
 
     public boolean isPartyPublic(String partyUniqueId) {
         return redisTransactions.runTransaction(jedis -> {
-            return jedis.exists(String.format(HASH_PARTY_STATUS, partyUniqueId));
+            return jedis.sismember(HASH_PARTY_STATUS, partyUniqueId);
         });
     }
 
@@ -197,6 +202,10 @@ public class RedisProvider {
 
             if (jedis.sismember(hash, uniqueId.toString())) {
                 jedis.srem(hash, uniqueId.toString());
+            }
+
+            if (jedis.sismember(HASH_PLAYER_ANNOUNCE, uniqueId.toString())) {
+                jedis.srem(HASH_PLAYER_ANNOUNCE, uniqueId.toString());
             }
 
             hash = String.format(HASH_PLAYER_PARTY, uniqueId);

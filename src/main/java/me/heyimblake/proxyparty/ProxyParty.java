@@ -34,11 +34,13 @@ public final class ProxyParty extends Plugin {
 
     private ConfigManager configManager;
 
+    public final static PartyCommand command = new PartyCommand();
+
     @Override
     public void onEnable() {
         instance = this;
 
-        this.getProxy().getPluginManager().registerCommand(this, new PartyCommand());
+        //this.getProxy().getPluginManager().registerCommand(this, new PartyCommand());
 
         this.registerListeners();
 

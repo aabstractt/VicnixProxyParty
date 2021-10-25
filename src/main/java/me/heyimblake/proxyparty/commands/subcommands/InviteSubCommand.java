@@ -40,7 +40,7 @@ public class InviteSubCommand extends PartySubCommand {
                 return;
             }
 
-            if (party.getMaxMembers() != -1 && party.getMembers().size() >= party.getMaxMembers()) {
+            if (party.isFull()) {
                 player.sendMessage(new ComponentBuilder("Tu party esta totalmente llena, compra un rango mas superior en").color(ChatColor.RED).append("\n tienda.vincix.net ").color(ChatColor.GREEN).event(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://tienda.vicnix.net")).append("para tener mas slots de party!").color(ChatColor.RED).create());
 
                 return;

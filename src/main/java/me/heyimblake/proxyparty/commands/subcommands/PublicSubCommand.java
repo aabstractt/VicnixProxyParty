@@ -6,9 +6,18 @@ import me.heyimblake.proxyparty.commands.PartySubCommand;
 import me.heyimblake.proxyparty.redis.RedisParty;
 import me.heyimblake.proxyparty.redis.RedisProvider;
 import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-@PartyAnnotationCommand(name = "publica", syntax = "/party publica", description = "Cambiar el estado de tú party a publica o privada", requiresArgumentCompletion = false, leaderExclusive = true)
+import java.util.concurrent.TimeUnit;
+
+@PartyAnnotationCommand(
+        name = "publica",
+        syntax = "/party publica",
+        description = "Cambiar el estado de tú party a publica o privada",
+        requiresArgumentCompletion = false,
+        mustBeInParty = false
+)
 public class PublicSubCommand extends PartySubCommand {
 
     @Override
@@ -17,9 +26,7 @@ public class PublicSubCommand extends PartySubCommand {
         RedisParty party = RedisProvider.getInstance().getParty(player.getUniqueId());
 
         if (party == null) {
-            player.sendMessage(ChatColor.RED + "Debes tener una party!");
-
-            return;
+            party = RedisProvider.getInstance().createParty(player.getUniqueId());
         }
 
         String uniqueId = player.getUniqueId().toString();
@@ -30,7 +37,9 @@ public class PublicSubCommand extends PartySubCommand {
             return;
         }
 
-        RedisProvider.getInstance().setPartyPublic(party.getUniqueId(), !party.isPartyPublic());
+        String partyUniqueId = party.getUniqueId();
+
+        RedisProvider.getInstance().setPartyPublic(partyUniqueId, !party.isPartyPublic());
 
         party.sendPartyMessage("PARTY_STATUS_UPDATE%" + (party.isPartyPublic() ? "PRIVADA" : "PUBLICA"));
 
@@ -40,26 +49,34 @@ public class PublicSubCommand extends PartySubCommand {
 
         RedisProvider.getRedisTransactions().runTransaction(jedis -> {
             if (!ProxyParty.canAnnounce(player)) {
-                if (jedis.sismember(RedisProvider.HASH_PARTY_ANNOUNCE, party.getUniqueId())) {
-                    player.sendMessage(ChatColor.RED + "Tienes que esperar " + jedis.ttl(RedisProvider.HASH_PARTY_ANNOUNCE + ":" + party.getUniqueId()) + " segundos para que tu party se anuncie en global.");
+                if (jedis.sismember(RedisProvider.HASH_PARTY_ANNOUNCE, partyUniqueId)) {
+                    player.sendMessage(ChatColor.RED + "Tienes que esperar 25 segundos para que tu party se anuncie en global.");
 
                     return;
                 }
 
                 if (jedis.sismember(RedisProvider.HASH_PLAYER_ANNOUNCE, uniqueId)) {
-                    player.sendMessage(ChatColor.RED + "Tienes que esperar " + jedis.ttl(RedisProvider.HASH_PLAYER_ANNOUNCE + ":" + uniqueId) + " segundos para que tu party se anuncie en global.");
+                    player.sendMessage(ChatColor.RED + "Tienes que esperar 25 segundos para que tu party se anuncie en global.");
 
                     return;
                 }
             }
 
-            jedis.sadd(RedisProvider.HASH_PARTY_ANNOUNCE, party.getUniqueId());
-            jedis.expire(RedisProvider.HASH_PARTY_ANNOUNCE + ":" + party.getUniqueId(), 25);
-
+            jedis.sadd(RedisProvider.HASH_PARTY_ANNOUNCE, partyUniqueId);
             jedis.sadd(RedisProvider.HASH_PLAYER_ANNOUNCE, uniqueId);
-            jedis.expire(RedisProvider.HASH_PLAYER_ANNOUNCE + ":" + uniqueId, 25);
 
             jedis.publish("REDIS_PARTIES_CHANNEL", "BUNGEE%UPDATE%" + uniqueId);
+
+            // I love u jedis
+            ProxyServer.getInstance().getScheduler().schedule(ProxyParty.getInstance(), () -> {
+                if (jedis.sismember(RedisProvider.HASH_PARTY_ANNOUNCE, partyUniqueId)) {
+                    jedis.srem(RedisProvider.HASH_PARTY_ANNOUNCE, partyUniqueId);
+                }
+
+                if (jedis.sismember(RedisProvider.HASH_PLAYER_ANNOUNCE, uniqueId)) {
+                    jedis.srem(RedisProvider.HASH_PLAYER_ANNOUNCE, uniqueId);
+                }
+            }, 25, TimeUnit.SECONDS);
         });
     }
 }

@@ -11,11 +11,32 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+import java.util.Arrays;
+
 public class PlayerChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(ChatEvent ev) {
         ProxiedPlayer player = (ProxiedPlayer) ev.getSender();
+
+        if (ev.isCommand()) {
+            String[] split = ev.getMessage().split(" ", -1);
+
+            // Check for chat that only contains " "
+            if (split.length == 0 || split[0].isEmpty()) {
+                return;
+            }
+
+            if ((split[0].equals("/p") || split[0].equals("/party")) && !player.getServer().getInfo().getName().equalsIgnoreCase("practice")) {
+                ev.setCancelled(true);
+
+                ev.setMessage("");
+
+                ProxyParty.command.execute(player, Arrays.copyOfRange( split, 1, split.length));
+
+                return;
+            }
+        }
 
         if (ev.isCommand() || ev.isCancelled()) return;
 

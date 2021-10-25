@@ -24,7 +24,10 @@ public class PlayerQuitListener implements Listener {
                 return;
             }
 
-            if (party.getMembers().size() <= 2) {
+            RedisProvider.getInstance().removePartyMember(party.getUniqueId(), player.getUniqueId());
+            party.getMembers().remove(player.getUniqueId().toString());
+
+            if (party.getMembers().size() <= 1) {
                 party.disband("PARTY_DISBAND_PLAYERS");
 
                 return;
@@ -36,8 +39,6 @@ public class PlayerQuitListener implements Listener {
                 }
 
                 party.sendPartyMessage("PLAYER_LEAVE%" + player.getUniqueId().toString());
-
-                RedisProvider.getInstance().removePartyMember(party.getUniqueId(), player.getUniqueId());
             } catch (Exception e) {
                 party.disband("PARTY_DISBAND_PLAYERS");
             }
