@@ -422,10 +422,24 @@ public class RedisProvider {
         if (args[0].equals("UPDATE")) {
             User user = ProxyParty.loadUser(args[1]);
 
+            ProxyServer.getInstance().broadcast(new TextComponent(" "));
             ProxyServer.getInstance().broadcast(new TextComponent(ProxyParty.LINE));
+            ProxyServer.getInstance().broadcast(new TextComponent(" "));
+            ProxyServer.getInstance().broadcast(new ComponentBuilder("Has recibido una invitacion").color(ChatColor.AQUA).bold(true).create());
             ProxyServer.getInstance().broadcast(ProxyParty.translatePrefix(user) + ChatColor.YELLOW + " ha creado una party publica!");
-            ProxyServer.getInstance().broadcast(ChatColor.YELLOW + "Utiliza " + ChatColor.GREEN + "/party join " + ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(user.getUniqueId(), true) + ChatColor.YELLOW + " para entrar.");
+            ProxyServer.getInstance().broadcast(new TextComponent(" "));
+            ProxyServer.getInstance().broadcast(new ComponentBuilder("Utiliza ").color(ChatColor.YELLOW)
+                    .append("/party join " + ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(user.getUniqueId(), true)).color(ChatColor.GREEN)
+                    .append(" o da click").color(ChatColor.YELLOW)
+                    .append(" AQUí ").color(ChatColor.AQUA).bold(true)
+                    .event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/party join " + user.getUsername()))
+                    .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Da click para unirte a la party").create()))
+                    .append("para entrar.", ComponentBuilder.FormatRetention.NONE).color(ChatColor.YELLOW)
+                    .create());
+            //ProxyServer.getInstance().broadcast(ChatColor.YELLOW + "Utiliza " + ChatColor.GREEN + "/party join " + ProxyParty.getRedisBungee().getUuidTranslator().getNameFromUuid(user.getUniqueId(), true) + ChatColor.YELLOW + " o da click " + ChatColor.AQUA + ChatColor.BOLD + "AQUí" + ChatColor.RESET + ChatColor.YELLOW + " para entrar.");
+            ProxyServer.getInstance().broadcast(new TextComponent(" "));
             ProxyServer.getInstance().broadcast(new TextComponent(ProxyParty.LINE));
+            ProxyServer.getInstance().broadcast(new TextComponent(" "));
 
             return;
         }
