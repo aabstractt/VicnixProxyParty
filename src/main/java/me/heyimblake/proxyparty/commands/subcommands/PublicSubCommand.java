@@ -11,13 +11,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.concurrent.TimeUnit;
 
-@PartyAnnotationCommand(
-        name = "publica",
-        syntax = "/party publica",
-        description = "Cambiar el estado de tú party a publica o privada",
-        requiresArgumentCompletion = false,
-        mustBeInParty = false
-)
+@PartyAnnotationCommand(name = "publica", syntax = "/party publica", description = "Cambiar el estado de tú party a publica o privada", requiresArgumentCompletion = false, mustBeInParty = false)
 public class PublicSubCommand extends PartySubCommand {
 
     @Override
@@ -44,6 +38,10 @@ public class PublicSubCommand extends PartySubCommand {
         party.sendPartyMessage("PARTY_STATUS_UPDATE%" + (party.isPartyPublic() ? "PRIVADA" : "PUBLICA"));
 
         if (party.isPartyPublic()) {
+            return;
+        }
+
+        if (!ProxyParty.canAnnounce(player)) {
             return;
         }
 
